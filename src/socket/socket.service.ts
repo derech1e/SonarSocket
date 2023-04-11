@@ -1,55 +1,55 @@
 import { Injectable } from "@nestjs/common";
-import { Server } from "socket.io";
-
-const Gpio = require("pigpio").Gpio;
-
+import { Gpio } from "pigpio";
 
 @Injectable()
 export class SocketService {
+  private readonly TRIGGER_GPIO: number = 23;
+  private readonly ECHO_GPIO : number= 24;
+  private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
 
-  // The number of microseconds it takes sound to travel 1cm at 20 degrees celcius
-  MICROSECONDS_PER_CM = 1e6 / 34321;
-  MAX_TIME_WITHOUT_MESSAGE = 400; // in milliseconds
-  US_SENSOR_TRIGGER = 23;
-  US_SENSOR_ECHO = 24;
+  async measureDistance(timeout: number): Promise<{
+    status: "SUCCESS" | "TIMEOUT" | "TOO_FAR_AWAY",
+    time: Date,
+    distance: number,
+    sensor: { triggerTick: number, echoTick: number, diff: number }
+  }> {
+    const trigger = new Gpio(this.TRIGGER_GPIO, { mode: Gpio.OUTPUT });
+    const echo = new Gpio(this.ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
 
-  trigger = new Gpio(this.US_SENSOR_TRIGGER, { mode: Gpio.OUTPUT, timeout: 400 });
-  echo = new Gpio(this.US_SENSOR_ECHO, { mode: Gpio.INPUT, alert: true, timeout: 400 });
-
-  lastTickResponse = 0;
-
-  constructor() {
-    this.trigger.digitalWrite(0); // Make sure trigger is low
-  }
-
-  setupListener(server: Server, room: string) {
-    let startTick;
-    this.echo.on("alert", (level, tick) => {
-      if (level == 1) {
-        startTick = tick;
-      } else {
-        const diff = (tick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
-        // if(diff >= 6940) {
-        //   server.in(room).emit("time", {distance: -1, startTick, tick, last: this.lastTickResponse});
-        //   this.lastTickResponse = Date.now();
-        //   return;
-        // }
-        server.in(room).emit("time", {distance: diff / 2 / this.MICROSECONDS_PER_CM, startTick, tick, last: this.lastTickResponse});
-        this.lastTickResponse = Date.now();
-      }
-    });
-  }
-
-  getDistance(userCount: number, server: Server, room: string) {
-    if (userCount > 0) {
-      this.trigger.trigger(20, 1); // Set trigger high for 10 microseconds
-      setTimeout(() => {
-        const now = Date.now();
-        const timeSinceLastTick = now - this.lastTickResponse;
-        if (timeSinceLastTick >= this.MAX_TIME_WITHOUT_MESSAGE) {
-          server.in(room).emit("time", {distance: -1, startTick: -1, tick: -1, last: this.lastTickResponse});
+    return new Promise((resolve) => {
+      let startTick: number;
+      let timeoutId: NodeJS.Timeout;
+      echo.on("alert", (level: number, tick: number) => {
+        if (level === 1) {
+          startTick = tick;
+        } else {
+          const diff = (tick >> 0) - (startTick >> 0); // Unsigned 32-bit arithmetic
+          const duration = diff / 1000000; // Convert to seconds
+          const distance = (duration * this.SOUND_SPEED_CM_PER_SEC) / 2; // Distance = speed * time / 2
+          clearTimeout(timeoutId);
+          if (distance < 1190) {
+            resolve({
+              status: "SUCCESS",
+              time: new Date(),
+              distance,
+              sensor: { triggerTick: startTick, echoTick: tick, diff }
+            });
+          }
+          // } else {
+          //   resolve({
+          //     status: "TOO_FAR_AWAY",
+          //     time: new Date(),
+          //     distance,
+          //     sensor: { triggerTick: startTick, echoTick: tick, diff }
+          //   });
+          // }
         }
-      }, this.MAX_TIME_WITHOUT_MESSAGE);
-    }
+      });
+      trigger.trigger(10, 1); // Send 10us trigger pulse
+      timeoutId = setTimeout(() => {
+        echo.removeAllListeners("alert");
+        resolve({ status: "TIMEOUT", time: new Date(), distance: null, sensor: null });
+      }, timeout);
+    });
   }
 }

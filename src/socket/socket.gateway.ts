@@ -7,14 +7,14 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import {Server, Socket} from "socket.io";
-import {Inject, Logger} from "@nestjs/common";
+import {Logger} from "@nestjs/common";
 import {SocketService} from "./socket.service";
 
 @WebSocketGateway({
     cors: {
         origin: '*',
     },
-    namespace: 'chat',
+    namespace: 'sonar',
 })
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
@@ -24,13 +24,14 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     server: Server;
     ROOM_NAME = 'time';
     userCount = 0;
+    MEASURE_TIME = 100;
     interValId: any = null;
     private logger: Logger = new Logger('ChatGateway');
 
     startInterval = () => {
         this.interValId = setInterval(async () => {
-            this.socketService.getDistance(this.userCount, this.server, this.ROOM_NAME);
-        }, 1000);
+            this.server.in(this.ROOM_NAME).emit('time', await this.socketService.measureDistance(this.MEASURE_TIME));
+        }, this.MEASURE_TIME);
     }
     checkForInterval = () => {
         if(this.userCount > 0) {
@@ -66,8 +67,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     }
 
     afterInit(server: any) {
-        this.logger.log('Prepare Sensor...');
-        this.socketService.setupListener(server, this.ROOM_NAME);
         this.logger.log("Sensor Ready!");
     }
 
