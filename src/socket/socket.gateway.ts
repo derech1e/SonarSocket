@@ -1,5 +1,6 @@
 import {
-  ConnectedSocket, OnGatewayConnection,
+  ConnectedSocket,
+  OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
@@ -20,13 +21,18 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   @WebSocketServer()
   server: Server;
-  ROOM_NAME = "time";
-  userCount = 0;
-  MEASURE_TIME = 100;
-  interValId: any = null;
-  private logger: Logger = new Logger("ChatGateway");
+  private readonly ROOM_NAME = "distance";
+  private readonly MEASURE_TIME = 100;
+  private readonly logger: Logger = new Logger("ChatGateway");
+
+  private userCount = 0;
+  private interValId: any = null;
 
   constructor(private readonly socketService: SocketService) {
+  }
+
+  afterInit(server: any) {
+    this.logger.log("Sensor Ready!");
   }
 
   startInterval = () => {
@@ -34,6 +40,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       this.server.in(this.ROOM_NAME).emit("time", await this.socketService.measureDistance(this.MEASURE_TIME));
     }, this.MEASURE_TIME);
   };
+
+  stopInterval = () => {
+    clearInterval(this.interValId);
+    this.interValId = null;
+  };
+
   checkForInterval = () => {
     if (this.userCount > 0 && this.interValId == null) {
       this.startInterval();
@@ -42,11 +54,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       this.stopInterval();
       this.logger.log("Stopped Interval!");
     }
-  };
-
-  stopInterval = () => {
-    clearInterval(this.interValId);
-    this.interValId = null;
   };
 
   handleConnection(@ConnectedSocket() client: Socket) {
@@ -59,10 +66,6 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     client.leave("time");
     this.userCount--;
     this.checkForInterval();
-  }
-
-  afterInit(server: any) {
-    this.logger.log("Sensor Ready!");
   }
 
   @SubscribeMessage("rejoin")
