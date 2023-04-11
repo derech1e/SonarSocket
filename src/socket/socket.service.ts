@@ -1,53 +1,55 @@
-import {Injectable} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { Server } from "socket.io";
 
-const Gpio = require('onoff').Gpio;
+const Gpio = require("pigpio").Gpio;
+
 
 @Injectable()
 export class SocketService {
 
-    // Sonar Sensor config
-    US_SENSOR_TRIGGER = new Gpio(23, 'out');
-    US_SENSOR_ECHO = new Gpio(24, 'in', 'both');
+  // The number of microseconds it takes sound to travel 1cm at 20 degrees celcius
+  MICROSECONDS_PER_CM = 1e6 / 34321;
+  MAX_TIME_WITHOUT_MESSAGE = 400; // in milliseconds
+  US_SENSOR_TRIGGER = 23;
+  US_SENSOR_ECHO = 24;
 
-    maxDelay = 1; // in sec
-    triggerDelay = 0.00001; // in sec
-    measurementFactor = (343460 / 2); // SoundSpeed / 2 (round trip) in mm/s
-    // https://de.wikipedia.org/wiki/Schallgeschwindigkeit
-    // +20°C 343,46m/s
-    // 0°C 331,50m/s
-    // −20°C 319,09m/s
+  trigger = new Gpio(this.US_SENSOR_TRIGGER, { mode: Gpio.OUTPUT, timeout: 400 });
+  echo = new Gpio(this.US_SENSOR_ECHO, { mode: Gpio.INPUT, alert: true, timeout: 400 });
 
+  lastTickResponse = 0;
 
-    async retrieveGpioData(): Promise<{ distance: number, start_time: number, stop_time: number, max_time: number, time_diff: number }> {
-        // Set TRIGGER for min 0.01ms
-        await this.US_SENSOR_TRIGGER.write(1);
-        await new Promise(resolve => setTimeout(resolve, this.triggerDelay * 1000));
-        await this.US_SENSOR_TRIGGER.write(0);
+  constructor() {
+    this.trigger.digitalWrite(0); // Make sure trigger is low
+  }
 
-        // save start_time
-        let start_time = Date.now();
-        const max_time = start_time + this.maxDelay * 1000;
+  setupListener(server: Server, room: string) {
+    let startTick;
+    this.echo.on("alert", (level, tick) => {
+      if (level == 1) {
+        startTick = tick;
+      } else {
+        const diff = (tick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
+        // if(diff >= 6940) {
+        //   server.in(room).emit("time", {distance: -1, startTick, tick, last: this.lastTickResponse});
+        //   this.lastTickResponse = Date.now();
+        //   return;
+        // }
+        server.in(room).emit("time", {distance: diff / 2 / this.MICROSECONDS_PER_CM, startTick, tick, last: this.lastTickResponse});
+        this.lastTickResponse = Date.now();
+      }
+    });
+  }
 
-        // wait rising flank from ECHO
-        while (start_time < max_time && await this.US_SENSOR_ECHO.read() === 0) {
-            start_time = Date.now();
+  getDistance(userCount: number, server: Server, room: string) {
+    if (userCount > 0) {
+      this.trigger.trigger(20, 1); // Set trigger high for 10 microseconds
+      setTimeout(() => {
+        const now = Date.now();
+        const timeSinceLastTick = now - this.lastTickResponse;
+        if (timeSinceLastTick >= this.MAX_TIME_WITHOUT_MESSAGE) {
+          server.in(room).emit("time", {distance: -1, startTick: -1, tick: -1, last: this.lastTickResponse});
         }
-
-        // save stop_time
-        let stop_time = start_time;
-        // wait for falling flank from ECHO
-        while (stop_time < max_time && await this.US_SENSOR_ECHO.read() === 1) {
-            stop_time = Date.now();
-        }
-
-        if (stop_time < max_time) {
-            // calculate time diff between start and stop in seconds
-            const time_diff = (stop_time - start_time) / 1000;
-            // calculate distance
-            const distance = (time_diff * this.measurementFactor) / 10;
-            return {distance, start_time, stop_time, max_time, time_diff};
-        } else {
-            return {distance: -1, start_time, stop_time, max_time, time_diff: 0};
-        }
+      }, this.MAX_TIME_WITHOUT_MESSAGE);
     }
+  }
 }

@@ -20,36 +20,55 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     constructor(private readonly socketService: SocketService) {}
 
-
     @WebSocketServer()
     server: Server;
-    userTimers: any = {};
+    ROOM_NAME = 'time';
+    userCount = 0;
+    interValId: any = null;
     private logger: Logger = new Logger('ChatGateway');
 
-    startTimerForId = (id: string, room: string) => {
-        (this.userTimers)[id] = setInterval(async () => {
-            // this.server.in(room).emit('time', {time: new Date().toJSON()});
-            this.server.in(room).emit('time', await this.socketService.retrieveGpioData());
-        }, 100);
+    startInterval = () => {
+        this.interValId = setInterval(async () => {
+            this.socketService.getDistance(this.userCount, this.server, this.ROOM_NAME);
+        }, 1000);
+    }
+    checkForInterval = () => {
+        if(this.userCount > 0) {
+            if(this.interValId == null) {
+                this.startInterval();
+                this.logger.log("Started Interval!")
+            }
+            this.logger.warn("Unexpected Interval >>Start<< Request!")
+        } else {
+            if(this.interValId != null) {
+                this.stopInterval();
+                this.logger.log("Stopped Interval!")
+            }
+            this.logger.warn("Unexpected Interval >>Stop<< Request!")
+        }
     }
 
-    stopTimerForId = (id: string) => {
-        clearInterval(this.userTimers[id])
-        delete this.userTimers[id];
+    stopInterval = () => {
+        clearInterval(this.interValId);
+        this.interValId = null;
     }
 
     handleConnection(@ConnectedSocket() client: Socket) {
         client.join('time');
-        this.startTimerForId(client.id, 'time');
+        this.userCount++;
+        this.checkForInterval();
     }
 
     handleDisconnect(@ConnectedSocket() client: any): any {
         client.leave('time');
-        this.stopTimerForId(client.id);
+        this.userCount--;
+        this.checkForInterval();
     }
 
     afterInit(server: any) {
-        this.logger.log('Setup Gateway to sensor!');
+        this.logger.log('Prepare Sensor...');
+        this.socketService.setupListener(server, this.ROOM_NAME);
+        this.logger.log("Sensor Ready!");
     }
 
     @SubscribeMessage('rejoin')
@@ -57,7 +76,5 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         client.leave("time")
         this.server.emit("time", "Requested Rejoin!")
         client.join("time")
-        this.stopTimerForId(client.id);
-        this.startTimerForId(client.id, 'time');
     }
 }
