@@ -1,0 +1,17 @@
+[
+  {
+    "dayOfWeek": [
+      "Monday",
+      "Tuesday"
+    ],
+    "startTime": "07:15",
+    "endTime": "07:30"
+  },
+  {
+    "dayOfWeek": [
+      "Monday"
+    ],
+    "startTime": "07:29",
+    "endTime": "08:30"
+  }
+]
