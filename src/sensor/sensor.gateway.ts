@@ -9,7 +9,7 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { Logger } from "@nestjs/common";
-import { SocketService } from "./socket.service";
+import { SensorService } from "./sensor.service";
 
 @WebSocketGateway({
   cors: {
@@ -17,7 +17,7 @@ import { SocketService } from "./socket.service";
   },
   namespace: "sonar"
 })
-export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer()
   server: Server;
@@ -28,7 +28,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   private userCount = 0;
   private interValId: any = null;
 
-  constructor(private readonly socketService: SocketService) {
+  constructor(private readonly socketService: SensorService) {
   }
 
   afterInit(server: any) {

@@ -1,12 +1,13 @@
 import { Module } from "@nestjs/common";
-import { SocketModule } from "./socket/socket.module";
 import { PlugModule } from "./plug/plug.module";
 import { ScheduleModule } from "@nestjs/schedule";
+import { SchedulerModule } from "./scheduler/scheduler.module";
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     PlugModule,
-    ScheduleModule.forRoot()
+    SchedulerModule,
   ]
 })
 export class AppModule {

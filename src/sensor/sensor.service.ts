@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Gpio } from "pigpio";
 
 @Injectable()
-export class SocketService {
+export class SensorService {
   private readonly TRIGGER_GPIO: number = 23;
   private readonly ECHO_GPIO : number= 24;
   private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
