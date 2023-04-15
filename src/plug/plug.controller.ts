@@ -22,27 +22,7 @@ export class PlugController {
 
   @Post("/scheduler/jobs")
   async createSchedulerJob(@Body() createSchedulerJobDto: CreateSchedulerJobDto): Promise<any> {
-
-    const overlappingJob = config.find((job) => {
-      // Check if there's any day overlap between the two jobs
-      const dayOverlap = job.dayOfWeek.some((day: DayOfWeek) => createSchedulerJobDto.dayOfWeek.includes(day));
-
-      // Check if the start time of the new job is within the range of the existing job
-      const startTimeOverlap = (createSchedulerJobDto.startTime > job.startTime && createSchedulerJobDto.startTime < job.endTime);
-
-      // Check if the end time of the new job is within the range of the existing job
-      const endTimeOverlap = (createSchedulerJobDto.endTime > job.startTime && createSchedulerJobDto.endTime < job.endTime);
-
-      // Check if the start and end times are the same
-      const sameTime = (createSchedulerJobDto.startTime === job.startTime && createSchedulerJobDto.endTime === job.endTime);
-
-      // Check if the end time is greater than the start time
-      const endTimeGreaterThanStartTime = (createSchedulerJobDto.endTime > createSchedulerJobDto.startTime);
-
-      return dayOverlap && ((startTimeOverlap || endTimeOverlap) || sameTime) && endTimeGreaterThanStartTime;
-    });
-
-    if (overlappingJob) {
+    if (this.plugService.isOverlappingJob(createSchedulerJobDto)) {
       throw new HttpException("A job already exists at the given time", HttpStatus.CONFLICT);
     }
 
@@ -58,6 +38,6 @@ export class PlugController {
     });
 
     // Return the updated config file
-    return config;
+    return this.plugService.getSchedulerJobs();
   }
 }
