@@ -9,7 +9,7 @@ export class SensorService {
 
   async measureDistance(timeout: number): Promise<{
     status: "SUCCESS" | "TIMEOUT" | "TOO_FAR_AWAY",
-    time: Date,
+    datetime: Date,
     distance: number,
     sensor: { triggerTick: number, echoTick: number, diff: number }
   }> {
@@ -30,7 +30,7 @@ export class SensorService {
           if (distance < 1190) {
             resolve({
               status: "SUCCESS",
-              time: new Date(),
+              datetime: new Date(),
               distance,
               sensor: { triggerTick: startTick, echoTick: tick, diff }
             });
@@ -48,7 +48,7 @@ export class SensorService {
       trigger.trigger(10, 1); // Send 10us trigger pulse
       timeoutId = setTimeout(() => {
         echo.removeAllListeners("alert");
-        resolve({ status: "TIMEOUT", time: new Date(), distance: null, sensor: null });
+        resolve({ status: "TIMEOUT", datetime: new Date(), distance: null, sensor: null });
       }, timeout);
     });
   }

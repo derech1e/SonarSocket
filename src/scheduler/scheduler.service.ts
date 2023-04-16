@@ -1,12 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import * as config from "../../plug-config.json";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { PlugService } from "../plug/plug.service";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { SensorData } from "./entities/scheduler-sensor.entity";
+import { SensorService } from "../sensor/sensor.service";
 
 @Injectable()
 export class SchedulerService {
 
-  constructor(private readonly plugService: PlugService) {}
+  private readonly logger: Logger = new Logger(SchedulerService.name);
+  constructor(
+    private readonly plugService: PlugService,
+    private readonly sensorService: SensorService,
+    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>
+  ) {
+  }
 
   getSchedulerJobs() {
     return config;
@@ -44,10 +54,20 @@ export class SchedulerService {
       if (job.dayOfWeek.includes(today)) {
         if (currentTime >= job.startTime && currentTime <= job.endTime) {
           await this.plugService.updatePlugStatus({ state: "ON" });
+          this.logger.debug(`Plug turned on for job ${job}`);
         } else {
           await this.plugService.updatePlugStatus({ state: "OFF" });
+          this.logger.debug(`Plug turned off for job ${job}`);
         }
       }
     }
+  }
+
+  @Cron("*/5 6-21 * * *")
+  async logSensorData() {
+    const data = await this.sensorService.measureDistance(100);
+    const sensorData = new this.sensorDataModel({ datetime: data.datetime, distance: data.distance, status: data.status });
+    await sensorData.save();
+    this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
   }
 }
