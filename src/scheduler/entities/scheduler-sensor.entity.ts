@@ -3,7 +3,7 @@ import { HydratedDocument } from "mongoose";
 
 export type SensorDataDocument = HydratedDocument<SensorData>;
 
-@Schema()
+@Schema({_id: false})
 export class SensorData {
   @Prop({ required: true, type: Date })
   datetime: Date;
