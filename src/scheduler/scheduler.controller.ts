@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post } from "@nestjs/common";
 import { SchedulerService } from "./scheduler.service";
 import { CreateSchedulerDto } from "./dto/create-scheduler.dto";
+import { Scheduler } from "./entities/scheduler.entity";
 
 @Controller("scheduler")
 export class SchedulerController {
@@ -8,8 +9,8 @@ export class SchedulerController {
   }
 
   @Get("/jobs")
-  getSchedulerJobs(): any {
-    return this.schedulerService.getSchedulerJobs();
+  async getSchedulerJobs(): Promise<Scheduler[]> {
+    return await this.schedulerService.getSchedulerJobs();
   }
 
   @Post("/jobs")
@@ -18,6 +19,6 @@ export class SchedulerController {
       throw new HttpException("A job already exists at the given time", HttpStatus.CONFLICT);
     }
 
-    return await this.schedulerService.createSchedulerJob(createSchedulerJobDto);
+    return this.schedulerService.createSchedulerJob(createSchedulerJobDto);
   }
 }

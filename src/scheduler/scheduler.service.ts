@@ -21,7 +21,7 @@ export class SchedulerService {
   ) {
   }
 
-  async getSchedulerJobs() {
+  async getSchedulerJobs(): Promise<Scheduler[]> {
     return this.schedulerDataModel.find().exec();
   }
 

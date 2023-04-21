@@ -5,7 +5,7 @@ import { PlugService } from "../plug/plug.service";
 import { SensorService } from "../sensor/sensor.service";
 import { SchedulerController } from "./scheduler.controller";
 import { getModelToken } from "@nestjs/mongoose";
-import { SensorData, SensorDataDocument, SensorDataSchema } from "./entities/scheduler-sensor.entity";
+import { SensorData } from "./entities/scheduler-sensor.entity";
 import { Scheduler } from "./entities/scheduler.entity";
 import { HttpModule } from "@nestjs/axios";
 
@@ -27,7 +27,7 @@ describe("SchedulerService", () => {
         {
           provide: getModelToken(Scheduler.name),
           useClass: Scheduler
-        },
+        }
       ]
     }).compile();
 
