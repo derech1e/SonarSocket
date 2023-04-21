@@ -9,7 +9,7 @@ import { MongooseModule } from "@nestjs/mongoose";
     ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: 'mongodb+srv://PumpAdminLinux:924B38LhTb4jKWLt@cluster0.jso71gc.mongodb.net/test?retryWrites=true&w=majority',
+        uri: 'mongodb+srv://PumpAdminLinux:924B38LhTb4jKWLt@cluster0.jso71gc.mongodb.net/sonarsocket?retryWrites=true&w=majority',
       }),
     }),
     PlugModule,

@@ -10,8 +10,8 @@ export class PlugController {
   }
 
   @Get("/status")
-  getLightStatus(): Promise<PlugState> {
-    return this.plugService.getPlugState();
+  async getPlugStatus(): Promise<PlugState> {
+    return await this.plugService.getPlugState();
   }
 
   @Patch("/status")

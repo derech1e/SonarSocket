@@ -9,12 +9,17 @@ import { PlugState } from "./interface/PlugState";
 export class PlugService {
 
   private readonly logger = new Logger(PlugService.name);
+  private manualOverride = false;
 
   constructor(private readonly httpService: HttpService) {
   }
 
+  isManualOverride() {
+    return this.manualOverride;
+  }
+
   async updatePlugStatus(updatePlugDto: UpdatePlugDto): Promise<PlugState> {
-    const url = `http://192.168.200.196/cm?cmnd=Power%20${updatePlugDto.state}`;
+    const url = `http://192.168.200.196/cm?cmnd=Power%20${updatePlugDto.POWER1}`;
     const { data } = await firstValueFrom(
       this.httpService.get(url).pipe(
         catchError((error) => {
@@ -23,6 +28,7 @@ export class PlugService {
           }
         )
       ));
+    this.manualOverride = updatePlugDto.POWER1 === "ON";
     return data;
   }
 

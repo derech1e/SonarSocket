@@ -12,6 +12,7 @@ import { CreateSchedulerDto, DayOfWeek } from "./dto/create-scheduler.dto";
 export class SchedulerService {
 
   private readonly logger: Logger = new Logger(SchedulerService.name);
+  private isAnyJobActive: boolean = false;
 
   constructor(
     private readonly plugService: PlugService,
@@ -59,19 +60,30 @@ export class SchedulerService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handlePlug() {
+
+    if (this.plugService.isManualOverride())
+      return;
+
     const jobs = await this.getSchedulerJobs();
     const now = new Date();
     const today = now.toLocaleDateString("en-US", { weekday: "long" });
     const currentTime = now.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" });
 
+    this.logger.debug("Checking jobs...");
+
     for (const job of jobs) {
       if (job.dayOfWeek.includes(<DayOfWeek>today)) {
         if (currentTime >= job.startTime && currentTime <= job.endTime) {
-          await this.plugService.updatePlugStatus({ state: "ON" });
+          await this.plugService.updatePlugStatus({ POWER1: "ON" });
           this.logger.debug(`Plug turned on for job ${job}`);
+          this.isAnyJobActive = true;
+          break;
         } else {
-          await this.plugService.updatePlugStatus({ state: "OFF" });
-          this.logger.debug(`Plug turned off for job ${job}`);
+          if (this.isAnyJobActive) {
+            await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+            this.logger.debug(`Plug turned off for job ${job}`);
+            this.isAnyJobActive = false;
+          }
         }
       }
     }

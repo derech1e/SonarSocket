@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import * as request from "supertest";
-import * as fs from "fs";
 import { DayOfWeek } from "../src/scheduler/dto/create-scheduler.dto";
 import { getModelToken } from "@nestjs/mongoose";
 import { Scheduler } from "../src/scheduler/entities/scheduler.entity";
@@ -43,18 +42,18 @@ describe("Plug", () => {
       .expect(HttpStatus.OK)
       .expect(response => {
         expect(response.body).toHaveLength(1);
-      })
-      /*.expect(response => {
-        const { body } = response;
-        expect(body).toBe([{
-          dayOfWeek: [
-            DayOfWeek.Monday,
-            DayOfWeek.Tuesday
-          ],
-          startTime: "07:15",
-          endTime: "07:30"
-        }]);
-      });*/
+      });
+    /*.expect(response => {
+      const { body } = response;
+      expect(body).toBe([{
+        dayOfWeek: [
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday
+        ],
+        startTime: "07:15",
+        endTime: "07:30"
+      }]);
+    });*/
   });
 
   it("/scheduler/jobs (POST) Conflict-1", () => {
@@ -156,25 +155,25 @@ describe("Plug", () => {
           DayOfWeek.Monday,
           DayOfWeek.Tuesday
         ]);
-      })
-      /*.expect([
-        {
-          dayOfWeek: [
-            DayOfWeek.Monday,
-            DayOfWeek.Tuesday
-          ],
-          startTime: "07:15",
-          endTime: "07:30"
-        },
-        {
-          dayOfWeek: [
-            DayOfWeek.Monday,
-            DayOfWeek.Tuesday
-          ],
-          startTime: "07:45",
-          endTime: "07:50"
-        }
-      ]);*/
+      });
+    /*.expect([
+      {
+        dayOfWeek: [
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday
+        ],
+        startTime: "07:15",
+        endTime: "07:30"
+      },
+      {
+        dayOfWeek: [
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday
+        ],
+        startTime: "07:45",
+        endTime: "07:50"
+      }
+    ]);*/
   });
 
   afterAll(async () => {
