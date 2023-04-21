@@ -1,0 +1,29 @@
+name: Run unit tests
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        uses: Borales/actions-yarn@v4
+        with:
+          cmd: install --ignore-engines
+
+      - name: Build project
+        uses: Borales/actions-yarn@v4
+        with:
+          cmd: build
+
+      - name: Run tests
+        uses: Borales/actions-yarn@v4
+        with:
+          cmd: test --detectOpenHandles
