@@ -42,5 +42,5 @@ SonarSocket is an MIT-licensed open source project. Contributions, issues and fe
 ## Stay in touch
 - Author - [derech1e](https://github.com/derech1e)
 
-License
+## License
 SonarSocket is [MIT licensed](https://github.com/derech1e/SonarSocket/blob/main/LICENSE).
