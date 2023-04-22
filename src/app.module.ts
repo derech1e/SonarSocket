@@ -3,6 +3,7 @@ import { PlugModule } from "./plug/plug.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { SchedulerModule } from "./scheduler/scheduler.module";
 import { MongooseModule } from "@nestjs/mongoose";
+import { TimerModule } from "./timer/timer.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MongooseModule } from "@nestjs/mongoose";
     }),
     PlugModule,
     SchedulerModule,
+    TimerModule,
   ]
 })
 export class AppModule {

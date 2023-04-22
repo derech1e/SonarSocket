@@ -89,15 +89,15 @@ export class SchedulerService {
     }
   }
 
-  @Cron("*/5 6-21 * * *")
-  async logSensorData() {
-    const data = await this.sensorService.measureDistance(100);
-    const sensorData = new this.sensorDataModel({
-      datetime: data.datetime,
-      distance: data.distance,
-      status: data.status
-    });
-    await sensorData.save({ validateBeforeSave: true });
-    this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
-  }
+  // @Cron("*/5 6-21 * * *")
+  // async logSensorData() {
+  //   const data = await this.sensorService.measureDistance(100);
+  //   const sensorData = new this.sensorDataModel({
+  //     datetime: data.datetime,
+  //     distance: data.distance,
+  //     status: data.status
+  //   });
+  //   await sensorData.save({ validateBeforeSave: true });
+  //   this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
+  // }
 }

@@ -37,7 +37,7 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   startInterval = () => {
     this.interValId = setInterval(async () => {
-      this.server.in(this.ROOM_NAME).emit("time", await this.socketService.measureDistance(this.MEASURE_TIME));
+      this.server.in(this.ROOM_NAME).emit(this.ROOM_NAME, await this.socketService.measureDistance(this.MEASURE_TIME));
     }, this.MEASURE_TIME);
   };
 
@@ -57,23 +57,23 @@ export class SensorGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   };
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    client.join("time");
+    client.join(this.ROOM_NAME);
     this.userCount++;
     this.checkForInterval();
   }
 
   handleDisconnect(@ConnectedSocket() client: any): any {
-    client.leave("time");
+    client.leave(this.ROOM_NAME);
     this.userCount--;
     this.checkForInterval();
   }
 
   @SubscribeMessage("rejoin")
   handleMessage(client: Socket) {
-    client.leave("time");
+    client.leave(this.ROOM_NAME);
     this.userCount--;
-    this.server.emit("time", "Requested Rejoin!");
-    client.join("time");
+    this.server.emit(this.ROOM_NAME, "Requested Rejoin!");
+    client.join(this.ROOM_NAME);
     this.userCount++;
     this.checkForInterval();
   }
