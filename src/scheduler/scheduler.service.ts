@@ -70,7 +70,7 @@ export class SchedulerService {
 
     for (const job of jobs) {
       if (job.dayOfWeek.includes(<DayOfWeek>today)) {
-        if (currentTime >= job.startTime && currentTime <= job.endTime) {
+        if (currentTime >= job.startTime && currentTime < job.endTime) {
           if(!this.isAnyJobActive) {
             await this.plugService.updatePlugStatus({ POWER1: "ON" });
             this.logger.debug(`Plug turned on for job ${job}`);
