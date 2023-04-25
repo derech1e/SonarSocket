@@ -61,9 +61,6 @@ export class SchedulerService {
   @Cron(CronExpression.EVERY_MINUTE)
   async handlePlug() {
 
-    if (this.plugService.isManualOverride())
-      return;
-
     const jobs = await this.getSchedulerJobs();
     const now = new Date();
     const today = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -74,10 +71,12 @@ export class SchedulerService {
     for (const job of jobs) {
       if (job.dayOfWeek.includes(<DayOfWeek>today)) {
         if (currentTime >= job.startTime && currentTime <= job.endTime) {
-          await this.plugService.updatePlugStatus({ POWER1: "ON" });
-          this.logger.debug(`Plug turned on for job ${job}`);
-          this.isAnyJobActive = true;
-          break;
+          if(!this.isAnyJobActive) {
+            await this.plugService.updatePlugStatus({ POWER1: "ON" });
+            this.logger.debug(`Plug turned on for job ${job}`);
+            this.isAnyJobActive = true;
+            break;
+          }
         } else {
           if (this.isAnyJobActive) {
             await this.plugService.updatePlugStatus({ POWER1: "OFF" });
@@ -89,15 +88,15 @@ export class SchedulerService {
     }
   }
 
-  // @Cron("*/5 6-21 * * *")
-  // async logSensorData() {
-  //   const data = await this.sensorService.measureDistance(100);
-  //   const sensorData = new this.sensorDataModel({
-  //     datetime: data.datetime,
-  //     distance: data.distance,
-  //     status: data.status
-  //   });
-  //   await sensorData.save({ validateBeforeSave: true });
-  //   this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
-  // }
+  @Cron("*/5 6-21 * * *")
+  async logSensorData() {
+    const data = await this.sensorService.measureDistance(100);
+    const sensorData = new this.sensorDataModel({
+      datetime: data.datetime,
+      distance: data.distance,
+      status: data.status
+    });
+    await sensorData.save({ validateBeforeSave: true });
+    this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
+  }
 }
