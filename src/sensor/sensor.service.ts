@@ -1,25 +1,24 @@
-import { Injectable } from "@nestjs/common";
-import { Gpio } from "pigpio";
+import { Injectable } from '@nestjs/common';
+import { Gpio } from 'pigpio';
 
 @Injectable()
 export class SensorService {
   private readonly TRIGGER_GPIO: number = 23;
-  private readonly ECHO_GPIO : number= 24;
+  private readonly ECHO_GPIO: number = 24;
   private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
 
   async measureDistance(timeout: number): Promise<{
-    status: "SUCCESS" | "TIMEOUT" | "TOO_FAR_AWAY",
-    datetime: Date,
-    distance: number,
-    sensor: { triggerTick: number, echoTick: number, diff: number }
+    status: 'SUCCESS' | 'TIMEOUT' | 'TOO_FAR_AWAY';
+    datetime: Date;
+    distance: number;
+    sensor: { triggerTick: number; echoTick: number; diff: number };
   }> {
     const trigger = new Gpio(this.TRIGGER_GPIO, { mode: Gpio.OUTPUT });
     const echo = new Gpio(this.ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
 
     return new Promise((resolve) => {
       let startTick: number;
-      let timeoutId: NodeJS.Timeout;
-      echo.on("alert", (level: number, tick: number) => {
+      echo.on('alert', (level: number, tick: number) => {
         if (level === 1) {
           startTick = tick;
         } else {
@@ -29,10 +28,10 @@ export class SensorService {
           clearTimeout(timeoutId);
           if (distance < 1190) {
             resolve({
-              status: "SUCCESS",
+              status: 'SUCCESS',
               datetime: new Date(),
               distance,
-              sensor: { triggerTick: startTick, echoTick: tick, diff }
+              sensor: { triggerTick: startTick, echoTick: tick, diff },
             });
           }
           // } else {
@@ -46,9 +45,14 @@ export class SensorService {
         }
       });
       trigger.trigger(10, 1); // Send 10us trigger pulse
-      timeoutId = setTimeout(() => {
-        echo.removeAllListeners("alert");
-        resolve({ status: "TIMEOUT", datetime: new Date(), distance: null, sensor: null });
+      const timeoutId = setTimeout(() => {
+        echo.removeAllListeners('alert');
+        resolve({
+          status: 'TIMEOUT',
+          datetime: new Date(),
+          distance: null,
+          sensor: null,
+        });
       }, timeout);
     });
   }

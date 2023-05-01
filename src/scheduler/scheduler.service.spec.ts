@@ -1,15 +1,15 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { SchedulerService } from "./scheduler.service";
-import { CreateSchedulerDto, DayOfWeek } from "./dto/create-scheduler.dto";
-import { PlugService } from "../plug/plug.service";
-import { SensorService } from "../sensor/sensor.service";
-import { SchedulerController } from "./scheduler.controller";
-import { getModelToken } from "@nestjs/mongoose";
-import { SensorData } from "./entities/scheduler-sensor.entity";
-import { Scheduler } from "./entities/scheduler.entity";
-import { HttpModule } from "@nestjs/axios";
+import { Test, TestingModule } from '@nestjs/testing';
+import { SchedulerService } from './scheduler.service';
+import { CreateSchedulerDto, DayOfWeek } from './dto/create-scheduler.dto';
+import { PlugService } from '../plug/plug.service';
+import { SensorService } from '../sensor/sensor.service';
+import { SchedulerController } from './scheduler.controller';
+import { getModelToken } from '@nestjs/mongoose';
+import { SensorData } from './entities/scheduler-sensor.entity';
+import { Scheduler } from './entities/scheduler.entity';
+import { HttpModule } from '@nestjs/axios';
 
-describe("SchedulerService", () => {
+describe('SchedulerService', () => {
   let service: SchedulerService;
 
   beforeEach(async () => {
@@ -22,226 +22,211 @@ describe("SchedulerService", () => {
         SensorService,
         {
           provide: getModelToken(SensorData.name),
-          useClass: SensorData
+          useClass: SensorData,
         },
         {
           provide: getModelToken(Scheduler.name),
-          useClass: Scheduler
-        }
-      ]
+          useClass: Scheduler,
+        },
+      ],
     }).compile();
 
     service = module.get<SchedulerService>(SchedulerService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-
-  describe("isOverlappingJob - Exact Day Match overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact Day Match overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday,
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:15",
-        endTime: "07:30"
+        dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
+        startTime: '07:15',
+        endTime: '07:30',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exact Day Match non overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact Day Match non overlapping', () => {
+    it('should return true', async function () {
       const result = false;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday,
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:45",
-        endTime: "07:50"
+        dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
+        startTime: '07:45',
+        endTime: '07:50',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exact One Day Match overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact One Day Match overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday
-        ],
-        startTime: "07:15",
-        endTime: "07:30"
+        dayOfWeek: [DayOfWeek.Monday],
+        startTime: '07:15',
+        endTime: '07:30',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exact One Day Match non overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact One Day Match non overlapping', () => {
+    it('should return true', async function () {
       const result = false;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday
-        ],
-        startTime: "07:45",
-        endTime: "07:50"
+        dayOfWeek: [DayOfWeek.Monday],
+        startTime: '07:45',
+        endTime: '07:50',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exact One other Day Match overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact One other Day Match overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:15",
-        endTime: "07:30"
+        dayOfWeek: [DayOfWeek.Tuesday],
+        startTime: '07:15',
+        endTime: '07:30',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exact One other Day Match non overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exact One other Day Match non overlapping', () => {
+    it('should return true', async function () {
       const result = false;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:45",
-        endTime: "07:50"
+        dayOfWeek: [DayOfWeek.Tuesday],
+        startTime: '07:45',
+        endTime: '07:50',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Other Day Exact Time Match non overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Other Day Exact Time Match non overlapping', () => {
+    it('should return true', async function () {
       const result = false;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Friday
-        ],
-        startTime: "07:15",
-        endTime: "07:30"
+        dayOfWeek: [DayOfWeek.Friday],
+        startTime: '07:15',
+        endTime: '07:30',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exacts days Match different time overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exacts days Match different time overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday,
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:29",
-        endTime: "07:35"
+        dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
+        startTime: '07:29',
+        endTime: '07:35',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exacts one day Match different time overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exacts one day Match different time overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday
-        ],
-        startTime: "07:29",
-        endTime: "07:35"
+        dayOfWeek: [DayOfWeek.Monday],
+        startTime: '07:29',
+        endTime: '07:35',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - Exacts one other day Match different time overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Exacts one other day Match different time overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Tuesday
-        ],
-        startTime: "07:29",
-        endTime: "07:35"
+        dayOfWeek: [DayOfWeek.Tuesday],
+        startTime: '07:29',
+        endTime: '07:35',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
-
     });
   });
 
-  describe("isOverlappingJob - No Day Match non overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - No Day Match non overlapping', () => {
+    it('should return true', async function () {
       const result = false;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Wednesday
-        ],
-        startTime: "07:29",
-        endTime: "07:35"
+        dayOfWeek: [DayOfWeek.Wednesday],
+        startTime: '07:29',
+        endTime: '07:35',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
     });
   });
 
-  describe("isOverlappingJob - Start Time is Greater than End Time overlapping", () => {
-    it("should return true", async function() {
+  describe('isOverlappingJob - Start Time is Greater than End Time overlapping', () => {
+    it('should return true', async function () {
       const result = true;
 
-      jest.spyOn(service, "isOverlappingJob").mockImplementation(async () => result);
+      jest
+        .spyOn(service, 'isOverlappingJob')
+        .mockImplementation(async () => result);
       const mock: CreateSchedulerDto = {
-        dayOfWeek: [
-          DayOfWeek.Monday
-        ],
-        startTime: "07:30",
-        endTime: "07:15"
+        dayOfWeek: [DayOfWeek.Monday],
+        startTime: '07:30',
+        endTime: '07:15',
       };
       expect(await service.isOverlappingJob(mock)).toBe(result);
     });
   });
-
 });

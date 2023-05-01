@@ -1,10 +1,10 @@
-import { Module } from "@nestjs/common";
-import { PlugModule } from "./plug/plug.module";
-import { ScheduleModule } from "@nestjs/schedule";
-import { SchedulerModule } from "./scheduler/scheduler.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { TimerModule } from "./timer/timer.module";
-import { SensorModule } from "./sensor/sensor.module";
+import { Module } from '@nestjs/common';
+import { PlugModule } from './plug/plug.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerModule } from './scheduler/scheduler.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { TimerModule } from './timer/timer.module';
+import { SensorModule } from './sensor/sensor.module';
 
 @Module({
   imports: [
@@ -18,7 +18,6 @@ import { SensorModule } from "./sensor/sensor.module";
     SchedulerModule,
     TimerModule,
     SensorModule,
-  ]
+  ],
 })
-export class AppModule {
-}
+export class AppModule {}

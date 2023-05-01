@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { CreateTimerDto } from "./dto/create-timer.dto";
-import { interval, Observable, Subscription } from "rxjs";
+import { Injectable } from '@nestjs/common';
+import { CreateTimerDto } from './dto/create-timer.dto';
+import { interval, Observable, Subscription } from 'rxjs';
 
 @Injectable()
 export class TimerService {
@@ -16,7 +16,7 @@ export class TimerService {
   startTimer(createTimerDto: CreateTimerDto): Observable<number> {
     if (!this.subscription || this.subscription.closed || !this.remainingTime) {
       this.remainingTime = createTimerDto.duration;
-      return new Observable<number>(observer => {
+      return new Observable<number>((observer) => {
         this.subscription = this.timer$.subscribe(() => {
           this.remainingTime -= 1;
           observer.next(this.remainingTime);
@@ -35,7 +35,10 @@ export class TimerService {
   }
 
   resumeTimer(): Observable<number> {
-    if ((!this.subscription || this.subscription.closed) && this.remainingTime) {
+    if (
+      (!this.subscription || this.subscription.closed) &&
+      this.remainingTime
+    ) {
       return this.startTimer({ duration: this.remainingTime });
     } else {
       return null;

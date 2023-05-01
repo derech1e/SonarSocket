@@ -1,6 +1,6 @@
-import { IsBoolean } from "class-validator";
+import { IsBoolean } from 'class-validator';
 
 export class UpdatePlugDto {
   @IsBoolean()
-  POWER1: "ON" | "OFF";
+  POWER1: 'ON' | 'OFF';
 }
