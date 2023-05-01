@@ -5,7 +5,7 @@ import {
 } from '@nestjs/websockets';
 import { TimerService } from './timer.service';
 import { Server } from 'socket.io';
-import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateTimerDto } from './dto/create-timer.dto';
 import { PlugService } from '../plug/plug.service';
 
@@ -23,7 +23,6 @@ import { PlugService } from '../plug/plug.service';
 export class TimerGateway {
   @WebSocketServer() server: Server;
   private readonly ROOM_NAME = 'timer';
-  private readonly logger = new Logger(TimerGateway.name);
 
   constructor(
     private readonly timerService: TimerService,
