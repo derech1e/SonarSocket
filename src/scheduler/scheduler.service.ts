@@ -1,12 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PlugService } from '../plug/plug.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from "mongoose";
 import { SensorData } from './entities/scheduler-sensor.entity';
 import { SensorService } from '../sensor/sensor.service';
 import { Scheduler } from './entities/scheduler.entity';
-import { CreateSchedulerDto, DayOfWeek } from './dto/create-scheduler.dto';
+import { CreateSchedulerDto, DayOfWeek } from './dto/create-scheduler.dto'
+import { UpdateSchedulerDto } from "./dto/update-scheduler.dto";
 
 @Injectable()
 export class SchedulerService {
@@ -24,18 +25,45 @@ export class SchedulerService {
     return this.schedulerDataModel.find().exec();
   }
 
+  async getSchedulerJob(_id: ObjectId): Promise<Scheduler> {
+    return this.schedulerDataModel.findById(_id).exec();
+  }
+
+  async updateSchedulerJob(_id: ObjectId, scheduler: UpdateSchedulerDto) {
+    if(await this.isOverlappingJob(scheduler)) {
+      throw new HttpException(
+        'A job already exists at the given time',
+        HttpStatus.CONFLICT,
+      );
+    }
+    return this.schedulerDataModel.findOneAndUpdate({ _id }, scheduler, {new: true}).exec();
+  }
+
+  async updateSchedulerJobActive(_id: ObjectId, isActive: boolean) {
+    return this.schedulerDataModel.findOneAndUpdate({ _id }, { isActive }, {new: true}).exec();
+  }
+
+  async deleteSchedulerJob(_id: ObjectId) {
+    return this.schedulerDataModel.findOneAndDelete({ _id }).exec();
+  }
+
   async createSchedulerJob(createSchedulerJobDto: CreateSchedulerDto) {
     if (!createSchedulerJobDto) {
-      throw new Error('Invalid input');
+      throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
     }
 
     const schedulerJob = new this.schedulerDataModel(createSchedulerJobDto);
     return schedulerJob.save({ validateBeforeSave: true });
   }
 
-  async isOverlappingJob(createSchedulerJobDto: any): Promise<boolean> {
+  async isOverlappingJob(createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto): Promise<boolean> {
     if (!createSchedulerJobDto) {
-      throw new Error('Invalid input');
+      throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+    }
+
+    if(createSchedulerJobDto.startTime >= createSchedulerJobDto.endTime) {
+      throw new HttpException('\'startTime\' must be before \'endTime\'',
+        HttpStatus.BAD_REQUEST);
     }
 
     const jobs = await this.getSchedulerJobs();

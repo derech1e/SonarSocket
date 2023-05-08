@@ -66,6 +66,14 @@ export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.checkForInterval();
   }
 
+  @SubscribeMessage('end')
+  handleEnd(@ConnectedSocket() client: any): any {
+    client.leave(this.ROOM_NAME);
+    this.userCount--;
+    this.checkForInterval();
+  }
+
+
   @SubscribeMessage('rejoin')
   handleMessage(client: Socket) {
     client.leave(this.ROOM_NAME);

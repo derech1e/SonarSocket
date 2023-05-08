@@ -6,6 +6,10 @@ export type SchedulerDocument = HydratedDocument<Scheduler>;
 
 @Schema({ _id: true, timestamps: { createdAt: true } })
 export class Scheduler {
+
+  @Prop({ default: true })
+  isActive: boolean = true;
+
   @Prop({ required: true, type: [String], enum: DayOfWeek })
   dayOfWeek: DayOfWeek[];
 
