@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { Gpio } from 'pigpio';
+import { InjectModel } from "@nestjs/mongoose";
+import { SensorData } from "../scheduler/entities/scheduler-sensor.entity";
+import { Model } from "mongoose";
 
 @Injectable()
 export class SensorService {
   private readonly TRIGGER_GPIO: number = 23;
   private readonly ECHO_GPIO: number = 24;
   private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
+
+  constructor(
+    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>) {
+  }
+
+  async getAllMeasurements(): Promise<SensorData[]> {
+    return this.sensorDataModel.find().select({datetime: 1, distance: 1, _id: 0}).exec();
+  }
 
   async measureDistance(timeout: number): Promise<{
     status: 'SUCCESS' | 'TIMEOUT' | 'TOO_FAR_AWAY';

@@ -40,11 +40,14 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact Day Match overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
-        .mockImplementation(async () => result);
+        .mockImplementation(async () => result)
       const mock: CreateSchedulerDto = {
         dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
         startTime: '07:15',
@@ -56,7 +59,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact Day Match non overlapping', () => {
     it('should return true', async function () {
-      const result = false;
+      const result = {
+        isOverlapping: false,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -72,7 +78,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact One Day Match overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -88,8 +97,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact One Day Match non overlapping', () => {
     it('should return true', async function () {
-      const result = false;
-
+      const result = {
+        isOverlapping: false,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
       jest
         .spyOn(service, 'isOverlappingJob')
         .mockImplementation(async () => result);
@@ -104,7 +115,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact One other Day Match overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -120,8 +134,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exact One other Day Match non overlapping', () => {
     it('should return true', async function () {
-      const result = false;
-
+      const result = {
+        isOverlapping: false,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
       jest
         .spyOn(service, 'isOverlappingJob')
         .mockImplementation(async () => result);
@@ -136,8 +152,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Other Day Exact Time Match non overlapping', () => {
     it('should return true', async function () {
-      const result = false;
-
+      const result = {
+        isOverlapping: false,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
       jest
         .spyOn(service, 'isOverlappingJob')
         .mockImplementation(async () => result);
@@ -152,7 +170,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exacts days Match different time overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -168,7 +189,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exacts one day Match different time overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -184,7 +208,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Exacts one other day Match different time overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -200,7 +227,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - No Day Match non overlapping', () => {
     it('should return true', async function () {
-      const result = false;
+      const result = {
+        isOverlapping: false,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')
@@ -216,7 +246,10 @@ describe('SchedulerService', () => {
 
   describe('isOverlappingJob - Start Time is Greater than End Time overlapping', () => {
     it('should return true', async function () {
-      const result = true;
+      const result = {
+        isOverlapping: true,
+        _id: '60f0b0b3e6b0b1a0e8e0b1a0',
+      };
 
       jest
         .spyOn(service, 'isOverlappingJob')

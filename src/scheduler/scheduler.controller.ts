@@ -22,30 +22,31 @@ export class SchedulerController {
   }
 
   @Get('/jobs/:_id')
-  async getSchedulerJob(@Param() _id: ObjectId): Promise<Scheduler> {
+  async getSchedulerJob(@Param() _id: string): Promise<Scheduler> {
     return await this.schedulerService.getSchedulerJob(_id);
   }
 
   @Put('/jobs/:_id')
-  async updateEnabledStatus(@Param() _id: ObjectId, @Body() scheduler: UpdateSchedulerDto) {
+  async updateEnabledStatus(@Param('_id') _id, @Body() scheduler: UpdateSchedulerDto) {
     return await this.schedulerService.updateSchedulerJob(_id, scheduler);
   }
 
   @Patch('/jobs/:_id')
-  async updateSchedulerJobActiveStatus(@Param() _id: ObjectId, @Body() scheduler: UpdateSchedulerDto) {
+  async updateSchedulerJobActiveStatus(@Param() _id: string, @Body() scheduler: UpdateSchedulerDto) {
     return await this.schedulerService.updateSchedulerJobActive(_id, scheduler.isActive);
   }
 
   @Delete('/jobs/:_id')
-  async deleteSchedulerJob(@Param() _id: ObjectId) {
+  async deleteSchedulerJob(@Param() _id: string) {
     return await this.schedulerService.deleteSchedulerJob(_id);
   }
 
   @Post('/jobs')
   async createSchedulerJob(@Body() createSchedulerJobDto: CreateSchedulerDto) {
-    if (await this.schedulerService.isOverlappingJob(createSchedulerJobDto)) {
+    const overlapping = await this.schedulerService.isOverlappingJob(createSchedulerJobDto);
+    if (overlapping.isOverlapping) {
       throw new HttpException(
-        'A job already exists at the given time',
+        `A job already exists at the given time ${overlapping._id}`,
         HttpStatus.CONFLICT,
       );
     }

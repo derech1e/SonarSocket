@@ -7,6 +7,8 @@ export type SchedulerDocument = HydratedDocument<Scheduler>;
 @Schema({ _id: true, timestamps: { createdAt: true } })
 export class Scheduler {
 
+  _id: string;
+
   @Prop({ default: true })
   isActive: boolean = true;
 
