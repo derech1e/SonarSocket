@@ -8,7 +8,6 @@ import { SensorService } from "../sensor/sensor.service";
 import { Scheduler } from "./entities/scheduler.entity";
 import { CreateSchedulerDto, DayOfWeek } from "./dto/create-scheduler.dto";
 import { UpdateSchedulerDto } from "./dto/update-scheduler.dto";
-import * as mongoose from "mongoose";
 
 @Injectable()
 export class SchedulerService {
@@ -59,7 +58,10 @@ export class SchedulerService {
     return schedulerJob.save({ validateBeforeSave: true });
   }
 
-  async isOverlappingJob(createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto): Promise<{ _id: string, isOverlapping: boolean }> {
+  async isOverlappingJob(createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto): Promise<{
+    _id: string,
+    isOverlapping: boolean
+  }> {
     if (!createSchedulerJobDto) {
       throw new HttpException("Invalid input", HttpStatus.BAD_REQUEST);
     }
@@ -95,10 +97,10 @@ export class SchedulerService {
       lastJobId = job._id;
 
       return (
-          dayOverlap &&
-          (startTimeOverlap || endTimeOverlap || sameTime) &&
-          validTimeRange
-        )
+        dayOverlap &&
+        (startTimeOverlap || endTimeOverlap || sameTime) &&
+        validTimeRange
+      );
     });
     return { _id: lastJobId, isOverlapping: overLapping };
   }
