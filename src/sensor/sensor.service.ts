@@ -40,7 +40,7 @@ export class SensorService {
           if (distance < 1190) {
             resolve({
               status: 'SUCCESS',
-              datetime: new Date(),
+              datetime: new Date(Date.now() + 7200000),
               distance,
               sensor: { triggerTick: startTick, echoTick: tick, diff },
             });
@@ -60,7 +60,7 @@ export class SensorService {
         echo.removeAllListeners('alert');
         resolve({
           status: 'TIMEOUT',
-          datetime: new Date(),
+          datetime: new Date(Date.now() + 7200000),
           distance: null,
           sensor: null,
         });
