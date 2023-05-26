@@ -13,7 +13,7 @@ export class PlugService {
 
   async updatePlugStatus(updatePlugDto: UpdatePlugDto): Promise<PlugState> {
     const { data } = await firstValueFrom(
-      this.httpService.get(this.URL + `=Power%20${updatePlugDto.POWER1}`).pipe(
+      this.httpService.get(this.URL + `Power%20${updatePlugDto.POWER1}`).pipe(
         catchError((error) => {
           this.logger.error(error.response.data);
           throw 'An error happened!';
