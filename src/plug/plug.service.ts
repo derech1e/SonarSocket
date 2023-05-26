@@ -20,14 +20,11 @@ export class PlugService {
         }),
       ),
     );
-    this.logger.warn("TURNED OFF")
     return data;
   }
 
   async updateShutdownFailSafe(enabled: boolean = false, endTime: string = '00:00', action: '0' | '1' | '2' = '2') {
     const urlEncoded: string = encodeURIComponent(`Timer1 {"Enable":${enabled ? "1" : "0"},"Mode":0,"Time":"${endTime}","Window":0,"Days":"11TW11S","Repeat":0,"Output":1,"Action":${action}}`)
-    this.logger.warn(urlEncoded);
-    this.logger.warn(this.URL + urlEncoded)
     const { data } = await firstValueFrom(
       this.httpService.get(this.URL + urlEncoded).pipe(
         catchError((error) => {
