@@ -118,22 +118,25 @@ export class SchedulerService {
 
     this.logger.debug("Checking jobs...");
 
+
+
     for (const job of jobs) {
-      if (job.dayOfWeek.includes(<DayOfWeek>today)) {
-        if (currentTime >= job.startTime && currentTime < job.endTime) {
-          if (!this.isAnyJobActive) {
-            await this.plugService.updatePlugStatus({ POWER1: "ON" });
-            this.logger.debug(`Plug turned on for job ${job}`);
-            this.isAnyJobActive = true;
-            break;
-          }
-        } else {
-          if (this.isAnyJobActive) {
-            await this.plugService.updatePlugStatus({ POWER1: "OFF" });
-            this.logger.debug(`Plug turned off for job ${job}`);
-            this.isAnyJobActive = false;
-          }
-        }
+      if (!job.isActive || !job.dayOfWeek.includes(<DayOfWeek>today)) continue;
+      if (currentTime == job.startTime) {
+        await this.plugService.updateShutdownFailSafe(true, job.endTime, '0');
+        await this.plugService.updatePlugStatus({ POWER1: "ON" });
+        this.logger.debug(`Plug turned on for job ${job._id}`);
+      } else if (currentTime == job.endTime) {
+
+        const failSafePromise = new Promise<void>((resolve) => {
+          setTimeout(async () => {
+            await this.plugService.updateShutdownFailSafe();
+            resolve();
+          }, 10000); // Delay of 10 seconds (10000 milliseconds)
+        });
+
+        await Promise.all([failSafePromise, this.plugService.updatePlugStatus({ POWER1: "OFF" })]);
+        this.logger.debug(`Plug turned off for job ${job._id}`);
       }
     }
   }
