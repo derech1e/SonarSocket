@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Gpio } from 'pigpio';
+import { Injectable } from "@nestjs/common";
+import { Gpio } from "pigpio";
 import { InjectModel } from "@nestjs/mongoose";
 import { SensorData } from "../scheduler/entities/scheduler-sensor.entity";
 import { Model } from "mongoose";
@@ -14,12 +14,16 @@ export class SensorService {
     @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>) {
   }
 
+  async isMinDistanceReached(): Promise<boolean> {
+    return (await this.measureDistance(1000)).distance > (243.67 - 11.5);
+  }
+
   async getAllMeasurements(): Promise<SensorData[]> {
-    return this.sensorDataModel.find().select({datetime: 1, distance: 1, _id: 0}).exec();
+    return this.sensorDataModel.find().select({ datetime: 1, distance: 1, _id: 0 }).exec();
   }
 
   async measureDistance(timeout: number): Promise<{
-    status: 'SUCCESS' | 'TIMEOUT' | 'TOO_FAR_AWAY';
+    status: "SUCCESS" | "TIMEOUT" | "TOO_FAR_AWAY";
     datetime: Date;
     distance: number;
     sensor: { triggerTick: number; echoTick: number; diff: number };

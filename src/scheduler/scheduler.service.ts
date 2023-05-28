@@ -12,7 +12,6 @@ import { UpdateSchedulerDto } from "./dto/update-scheduler.dto";
 @Injectable()
 export class SchedulerService {
   private readonly logger: Logger = new Logger(SchedulerService.name);
-  private isAnyJobActive = false;
 
   constructor(
     private readonly plugService: PlugService,
@@ -106,7 +105,7 @@ export class SchedulerService {
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
-  async handlePlug() {
+  async handlePlugState() {
     const jobs = await this.getSchedulerJobs();
     const now = new Date();
     const today = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -116,14 +115,17 @@ export class SchedulerService {
       minute: "2-digit"
     });
 
+    if (await this.sensorService.isMinDistanceReached()) {
+      await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+    }
+
     this.logger.debug("Checking jobs...");
-
-
 
     for (const job of jobs) {
       if (!job.isActive || !job.dayOfWeek.includes(<DayOfWeek>today)) continue;
       if (currentTime == job.startTime) {
-        await this.plugService.updateShutdownFailSafe(true, job.endTime, '0');
+        if (await this.sensorService.isMinDistanceReached()) return;
+        await this.plugService.updateShutdownFailSafe(true, job.endTime, "0");
         await this.plugService.updatePlugStatus({ POWER1: "ON" });
         this.logger.debug(`Plug turned on for job ${job._id}`);
       } else if (currentTime == job.endTime) {
