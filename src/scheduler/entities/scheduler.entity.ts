@@ -9,7 +9,7 @@ export class Scheduler {
   _id: string;
 
   @Prop({ default: true })
-  isActive = true;
+  isActive: boolean = true;
 
   @Prop({ required: true, type: [String], enum: DayOfWeek })
   dayOfWeek: DayOfWeek[];
