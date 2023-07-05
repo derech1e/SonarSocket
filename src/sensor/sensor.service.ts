@@ -11,15 +11,19 @@ export class SensorService {
   private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
 
   constructor(
-    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>) {
+    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>
+  ) {
   }
 
   async isMinDistanceReached(): Promise<boolean> {
-    return (await this.measureDistance(1000)).distance > (243.67 - 11.5);
+    return (await this.measureDistance(1000)).distance > 243.67 - 11.5;
   }
 
   async getAllMeasurements(): Promise<SensorData[]> {
-    return this.sensorDataModel.find().select({ datetime: 1, distance: 1, _id: 0 }).exec();
+    return this.sensorDataModel
+      .find()
+      .select({ datetime: 1, distance: 1, _id: 0 })
+      .exec();
   }
 
   async measureDistance(timeout: number): Promise<{
@@ -33,7 +37,7 @@ export class SensorService {
 
     return new Promise((resolve) => {
       let startTick: number;
-      echo.on('alert', (level: number, tick: number) => {
+      echo.on("alert", (level: number, tick: number) => {
         if (level === 1) {
           startTick = tick;
         } else {
@@ -43,10 +47,10 @@ export class SensorService {
           clearTimeout(timeoutId);
           if (distance < 1190) {
             resolve({
-              status: 'SUCCESS',
+              status: "SUCCESS",
               datetime: new Date(Date.now() + 7200000),
               distance,
-              sensor: { triggerTick: startTick, echoTick: tick, diff },
+              sensor: { triggerTick: startTick, echoTick: tick, diff }
             });
           }
           // } else {
@@ -61,12 +65,12 @@ export class SensorService {
       });
       trigger.trigger(10, 1); // Send 10us trigger pulse
       const timeoutId = setTimeout(() => {
-        echo.removeAllListeners('alert');
+        echo.removeAllListeners("alert");
         resolve({
-          status: 'TIMEOUT',
+          status: "TIMEOUT",
           datetime: new Date(Date.now() + 7200000),
           distance: null,
-          sensor: null,
+          sensor: null
         });
       }, timeout);
     });

@@ -4,24 +4,24 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
-import { SensorService } from './sensor.service';
+  WebSocketServer
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
+import { Logger } from "@nestjs/common";
+import { SensorService } from "./sensor.service";
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: "*"
   },
-  namespace: 'sonar',
+  namespace: "sonar"
 })
 export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-  private readonly ROOM_NAME = 'distance';
+  private readonly ROOM_NAME = "distance";
   private readonly MEASURE_TIME = 100;
-  private readonly logger: Logger = new Logger('ChatGateway');
+  private readonly logger: Logger = new Logger("ChatGateway");
 
   private userCount = 0;
   private interValId: any = null;
@@ -47,10 +47,10 @@ export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   checkForInterval = () => {
     if (this.userCount > 0 && this.interValId == null) {
       this.startInterval();
-      this.logger.log('Started Interval!');
+      this.logger.log("Started Interval!");
     } else if (this.userCount <= 0) {
       this.stopInterval();
-      this.logger.log('Stopped Interval!');
+      this.logger.log("Stopped Interval!");
     }
   };
 
@@ -66,19 +66,18 @@ export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.checkForInterval();
   }
 
-  @SubscribeMessage('end')
+  @SubscribeMessage("end")
   handleEnd(@ConnectedSocket() client: any): any {
     client.leave(this.ROOM_NAME);
     this.userCount--;
     this.checkForInterval();
   }
 
-
-  @SubscribeMessage('rejoin')
+  @SubscribeMessage("rejoin")
   handleMessage(client: Socket) {
     client.leave(this.ROOM_NAME);
     this.userCount--;
-    this.server.emit(this.ROOM_NAME, 'Requested Rejoin!');
+    this.server.emit(this.ROOM_NAME, "Requested Rejoin!");
     client.join(this.ROOM_NAME);
     this.userCount++;
     this.checkForInterval();

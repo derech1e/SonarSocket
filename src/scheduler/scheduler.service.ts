@@ -37,11 +37,15 @@ export class SchedulerService {
         HttpStatus.CONFLICT
       );
     }
-    return this.schedulerDataModel.findOneAndUpdate({ _id }, scheduler, { new: true }).exec();
+    return this.schedulerDataModel
+      .findOneAndUpdate({ _id }, scheduler, { new: true })
+      .exec();
   }
 
   async updateSchedulerJobActive(_id: string, isActive: boolean) {
-    return this.schedulerDataModel.findOneAndUpdate({ _id }, { isActive }, { new: true }).exec();
+    return this.schedulerDataModel
+      .findOneAndUpdate({ _id }, { isActive }, { new: true })
+      .exec();
   }
 
   async deleteSchedulerJob(_id: string) {
@@ -57,17 +61,21 @@ export class SchedulerService {
     return schedulerJob.save({ validateBeforeSave: true });
   }
 
-  async isOverlappingJob(createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto): Promise<{
-    _id: string,
-    isOverlapping: boolean
+  async isOverlappingJob(
+    createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto
+  ): Promise<{
+    _id: string;
+    isOverlapping: boolean;
   }> {
     if (!createSchedulerJobDto) {
       throw new HttpException("Invalid input", HttpStatus.BAD_REQUEST);
     }
 
     if (createSchedulerJobDto.startTime >= createSchedulerJobDto.endTime) {
-      throw new HttpException("'startTime' must be before 'endTime'",
-        HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "'startTime' must be before 'endTime'",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const jobs = await this.getSchedulerJobs();
@@ -129,7 +137,6 @@ export class SchedulerService {
         await this.plugService.updatePlugStatus({ POWER1: "ON" });
         this.logger.debug(`Plug turned on for job ${job._id}`);
       } else if (currentTime == job.endTime) {
-
         const failSafePromise = new Promise<void>((resolve) => {
           setTimeout(async () => {
             await this.plugService.updateShutdownFailSafe();
@@ -137,7 +144,10 @@ export class SchedulerService {
           }, 10000); // Delay of 10 seconds (10000 milliseconds)
         });
 
-        await Promise.all([failSafePromise, this.plugService.updatePlugStatus({ POWER1: "OFF" })]);
+        await Promise.all([
+          failSafePromise,
+          this.plugService.updatePlugStatus({ POWER1: "OFF" })
+        ]);
         this.logger.debug(`Plug turned off for job ${job._id}`);
       }
     }

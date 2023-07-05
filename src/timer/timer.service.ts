@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTimerDto } from './dto/create-timer.dto';
-import { interval, Observable, Subscription } from 'rxjs';
+import { Injectable } from "@nestjs/common";
+import { CreateTimerDto } from "./dto/create-timer.dto";
+import { interval, Observable, Subscription } from "rxjs";
 
 @Injectable()
 export class TimerService {

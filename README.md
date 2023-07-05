@@ -30,17 +30,24 @@ $ npm run start:prod
 ```
 
 ## Technologies
+
 SonarSocket uses the following technologies:
 
 - [Node.js](https://nodejs.org/) - a JavaScript runtime built on Chrome's V8 JavaScript engine
-- [Socket.IO](https://socket.io/) - enables real-time, bidirectional and event-based communication between the browser and the server
-- [Tasmota](https://tasmota.github.io/docs/) - alternative firmware for ESP8266/ESP32 based devices with easy configuration using webUI, OTA updates, automation using timers or rules, MQTT, KNX, serial communication, and more.
+- [Socket.IO](https://socket.io/) - enables real-time, bidirectional and event-based communication between the browser
+  and the server
+- [Tasmota](https://tasmota.github.io/docs/) - alternative firmware for ESP8266/ESP32 based devices with easy
+  configuration using webUI, OTA updates, automation using timers or rules, MQTT, KNX, serial communication, and more.
 
 ## Issues
-SonarSocket is an MIT-licensed open source project. Contributions, issues and feature requests are welcome. Feel free to check [issues page](https://github.com/derech1e/SonarSocket/issues) if you want to contribute.
+
+SonarSocket is an MIT-licensed open source project. Contributions, issues and feature requests are welcome. Feel free to
+check [issues page](https://github.com/derech1e/SonarSocket/issues) if you want to contribute.
 
 ## Stay in touch
+
 - Author - [derech1e](https://github.com/derech1e)
 
 ## License
+
 SonarSocket is [MIT licensed](https://github.com/derech1e/SonarSocket/blob/main/LICENSE).

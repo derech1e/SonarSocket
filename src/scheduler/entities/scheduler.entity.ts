@@ -1,16 +1,15 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { DayOfWeek } from '../dto/create-scheduler.dto';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
+import { DayOfWeek } from "../dto/create-scheduler.dto";
 
 export type SchedulerDocument = HydratedDocument<Scheduler>;
 
 @Schema({ _id: true, timestamps: { createdAt: true } })
 export class Scheduler {
-
   _id: string;
 
   @Prop({ default: true })
-  isActive: boolean = true;
+  isActive = true;
 
   @Prop({ required: true, type: [String], enum: DayOfWeek })
   dayOfWeek: DayOfWeek[];

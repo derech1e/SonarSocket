@@ -1,14 +1,14 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
 
 export type SensorDataDocument = HydratedDocument<SensorData>;
 
 @Schema({
   timeseries: {
-    timeField: 'datetime',
-    granularity: 'minutes',
-    metaField: 'distance',
-  },
+    timeField: "datetime",
+    granularity: "minutes",
+    metaField: "distance"
+  }
 })
 export class SensorData {
   @Prop({ required: true, type: Date })

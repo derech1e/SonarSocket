@@ -10,12 +10,13 @@ export class PlugService {
   private readonly logger = new Logger(PlugService.name);
   private readonly URL = `http://192.168.200.196/cm?cmnd=`;
 
-  constructor(private readonly httpService: HttpService,
-              private readonly sensorService: SensorService) {
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly sensorService: SensorService
+  ) {
   }
 
   async updatePlugStatus(updatePlugDto: UpdatePlugDto): Promise<PlugState> {
-
     if (updatePlugDto.POWER1 == "ON")
       if (await this.sensorService.isMinDistanceReached())
         throw "Min distance reached!";
@@ -31,8 +32,16 @@ export class PlugService {
     return data;
   }
 
-  async updateShutdownFailSafe(enabled: boolean = false, endTime: string = "00:00", action: "0" | "1" | "2" = "2") {
-    const urlEncoded: string = encodeURIComponent(`Timer1 {"Enable":${enabled ? "1" : "0"},"Mode":0,"Time":"${endTime}","Window":0,"Days":"11TW11S","Repeat":0,"Output":1,"Action":${action}}`);
+  async updateShutdownFailSafe(
+    enabled = false,
+    endTime = "00:00",
+    action: "0" | "1" | "2" = "2"
+  ) {
+    const urlEncoded: string = encodeURIComponent(
+      `Timer1 {"Enable":${
+        enabled ? "1" : "0"
+      },"Mode":0,"Time":"${endTime}","Window":0,"Days":"11TW11S","Repeat":0,"Output":1,"Action":${action}}`
+    );
     // const { data } = await firstValueFrom(
     return this.httpService.get(this.URL + urlEncoded).pipe(
       catchError((error) => {

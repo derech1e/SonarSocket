@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { LogsService } from './logs.service';
+import { Body, Controller, Get, Post } from "@nestjs/common";
+import { LogsService } from "./logs.service";
 
-@Controller('logs')
+@Controller("logs")
 export class LogsController {
-  constructor(private readonly logsService: LogsService) {}
+  constructor(private readonly logsService: LogsService) {
+  }
 
   @Post()
   async createLog(@Body() body: { action: string }) {

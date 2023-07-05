@@ -9,7 +9,9 @@ import { SensorData, SensorDataSchema } from "../scheduler/entities/scheduler-se
 @Module({
   imports: [
     HttpModule,
-    MongooseModule.forFeature([{ name: SensorData.name, schema: SensorDataSchema }])
+    MongooseModule.forFeature([
+      { name: SensorData.name, schema: SensorDataSchema }
+    ])
   ],
   controllers: [PlugController],
   providers: [PlugService, SensorService],

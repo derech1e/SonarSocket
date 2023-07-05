@@ -1,3 +1,3 @@
 export interface PlugState {
-  POWER1: 'ON' | 'OFF';
+  POWER1: "ON" | "OFF";
 }
