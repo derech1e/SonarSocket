@@ -3,22 +3,26 @@ import { SchedulerService } from "./scheduler.service";
 import { SchedulerController } from "./scheduler.controller";
 import { PlugService } from "../plug/plug.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { SensorData, SensorDataSchema } from "./entities/scheduler-sensor.entity";
-import { SensorService } from "../sensor/sensor.service";
+import {
+  SensorData,
+  SensorDataSchema,
+} from "./entities/scheduler-sensor.entity";
 import { HttpModule } from "@nestjs/axios";
 import { Scheduler, SchedulerSchema } from "./entities/scheduler.entity";
+import { SensorModule } from "../sensor/sensor.module";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: SensorData.name, schema: SensorDataSchema }
+      { name: SensorData.name, schema: SensorDataSchema },
     ]),
     MongooseModule.forFeature([
-      { name: Scheduler.name, schema: SchedulerSchema }
+      { name: Scheduler.name, schema: SchedulerSchema },
     ]),
-    HttpModule
+    HttpModule,
+    SensorModule,
   ],
   controllers: [SchedulerController],
-  providers: [SchedulerService, PlugService, SensorService],
+  providers: [SchedulerService, PlugService],
 })
 export class SchedulerModule {}

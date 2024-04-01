@@ -4,17 +4,17 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer
+  WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { Logger } from "@nestjs/common";
-import { SensorService } from "./sensor.service";
+import { Inject, Logger } from "@nestjs/common";
+import { ISensorService, SENSOR_SERVICE } from "./interface/ISensorService";
 
 @WebSocketGateway({
   cors: {
-    origin: "*"
+    origin: "*",
   },
-  namespace: "sonar"
+  namespace: "sonar",
 })
 export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -26,7 +26,10 @@ export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private userCount = 0;
   private interValId: any = null;
 
-  constructor(private readonly socketService: SensorService) {}
+  constructor(
+    @Inject(SENSOR_SERVICE)
+    private readonly sensorService: ISensorService,
+  ) {}
 
   startInterval = () => {
     this.interValId = setInterval(async () => {
@@ -34,7 +37,7 @@ export class SensorGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .in(this.ROOM_NAME)
         .emit(
           this.ROOM_NAME,
-          await this.socketService.measureDistance(this.MEASURE_TIME),
+          await this.sensorService.measureDistance(this.MEASURE_TIME),
         );
     }, this.MEASURE_TIME);
   };

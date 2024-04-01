@@ -1,4 +1,8 @@
-import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import {
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from "@nestjs/websockets";
 import { TimerService } from "./timer.service";
 import { Server } from "socket.io";
 import { UsePipes, ValidationPipe } from "@nestjs/common";
@@ -7,14 +11,14 @@ import { PlugService } from "../plug/plug.service";
 
 @UsePipes(
   new ValidationPipe({
-    transform: true
-  })
+    transform: true,
+  }),
 )
 @WebSocketGateway({
   cors: {
-    origin: "*"
+    origin: "*",
   },
-  namespace: "timer"
+  namespace: "timer",
 })
 export class TimerGateway {
   @WebSocketServer() server: Server;

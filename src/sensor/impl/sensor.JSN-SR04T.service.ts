@@ -1,22 +1,27 @@
 import { Injectable } from "@nestjs/common";
 import { Gpio } from "pigpio";
 import { InjectModel } from "@nestjs/mongoose";
-import { SensorData } from "../scheduler/entities/scheduler-sensor.entity";
+import { SensorData } from "../../scheduler/entities/scheduler-sensor.entity";
 import { Model } from "mongoose";
+import { ISensorService } from "../interface/ISensorService";
+import { ISensorData } from "../interface/ISensorData";
+import * as process from "process";
 
 @Injectable()
-export class SensorService {
+export class SensorJSNSR04TService implements ISensorService {
   private readonly TRIGGER_GPIO: number = 23;
   private readonly ECHO_GPIO: number = 24;
   private readonly SOUND_SPEED_CM_PER_SEC: number = 34300; // Speed of sound in cm/s 34000 => 15°C | 3313 => 0°C
 
   constructor(
-    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>
+    @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>,
   ) {
+    console.log("Init JSNR04T");
+    console.log(process.env.SENSOR_TYPE);
   }
 
   async isMinDistanceReached(): Promise<boolean> {
-    return (await this.measureDistance(1000)).distance > 243.67 - 11.5;
+    return (await this.measureDistance(1000)).distance > 243.67 - 13;
   }
 
   async getAllMeasurements(): Promise<SensorData[]> {
@@ -26,12 +31,7 @@ export class SensorService {
       .exec();
   }
 
-  async measureDistance(timeout: number): Promise<{
-    status: "SUCCESS" | "TIMEOUT" | "TOO_FAR_AWAY";
-    datetime: Date;
-    distance: number;
-    sensor: { triggerTick: number; echoTick: number; diff: number };
-  }> {
+  async measureDistance(timeout: number): Promise<ISensorData> {
     const trigger = new Gpio(this.TRIGGER_GPIO, { mode: Gpio.OUTPUT });
     const echo = new Gpio(this.ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
 
@@ -50,7 +50,7 @@ export class SensorService {
               status: "SUCCESS",
               datetime: new Date(Date.now() + 7200000),
               distance,
-              sensor: { triggerTick: startTick, echoTick: tick, diff }
+              sensor: { triggerTick: startTick, echoTick: tick, diff },
             });
           }
           // } else {
@@ -70,7 +70,7 @@ export class SensorService {
           status: "TIMEOUT",
           datetime: new Date(Date.now() + 7200000),
           distance: null,
-          sensor: null
+          sensor: null,
         });
       }, timeout);
     });

@@ -1,13 +1,22 @@
-import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { PlugService } from "../plug/plug.service";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { SensorData } from "./entities/scheduler-sensor.entity";
-import { SensorService } from "../sensor/sensor.service";
 import { Scheduler } from "./entities/scheduler.entity";
 import { CreateSchedulerDto, DayOfWeek } from "./dto/create-scheduler.dto";
 import { UpdateSchedulerDto } from "./dto/update-scheduler.dto";
+import {
+  ISensorService,
+  SENSOR_SERVICE,
+} from "../sensor/interface/ISensorService";
 
 @Injectable()
 export class SchedulerService {
@@ -15,11 +24,11 @@ export class SchedulerService {
 
   constructor(
     private readonly plugService: PlugService,
-    private readonly sensorService: SensorService,
+    @Inject(SENSOR_SERVICE)
+    private readonly sensorService: ISensorService,
     @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>,
-    @InjectModel(Scheduler.name) private schedulerDataModel: Model<Scheduler>
-  ) {
-  }
+    @InjectModel(Scheduler.name) private schedulerDataModel: Model<Scheduler>,
+  ) {}
 
   async getSchedulerJobs(): Promise<Scheduler[]> {
     return this.schedulerDataModel.find().exec();
@@ -34,7 +43,7 @@ export class SchedulerService {
     if (overlapping.isOverlapping && overlapping._id != _id) {
       throw new HttpException(
         "A job already exists at the given time",
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
     return this.schedulerDataModel
@@ -62,7 +71,7 @@ export class SchedulerService {
   }
 
   async isOverlappingJob(
-    createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto
+    createSchedulerJobDto: CreateSchedulerDto | UpdateSchedulerDto,
   ): Promise<{
     _id: string;
     isOverlapping: boolean;
@@ -74,7 +83,7 @@ export class SchedulerService {
     if (createSchedulerJobDto.startTime >= createSchedulerJobDto.endTime) {
       throw new HttpException(
         "'startTime' must be before 'endTime'",
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -84,7 +93,7 @@ export class SchedulerService {
     const overLapping = jobs.some((job) => {
       // Check if there's any day overlap between the two jobs
       const dayOverlap = job.dayOfWeek.some((day) =>
-        createSchedulerJobDto.dayOfWeek.includes(day)
+        createSchedulerJobDto.dayOfWeek.includes(day),
       );
       // Check if the start time of the new job is within the range of the existing job
       const startTimeOverlap =
@@ -120,33 +129,36 @@ export class SchedulerService {
     const currentTime = now.toLocaleTimeString("en-US", {
       hour12: false,
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
 
-    if (await this.sensorService.isMinDistanceReached()) {
-      await this.plugService.updatePlugStatus({ POWER1: "OFF" });
-    }
+    // if (await this.sensorService.isMinDistanceReached()) {
+    //   await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+    // }
 
     this.logger.debug("Checking jobs...");
 
     for (const job of jobs) {
       if (!job.isActive || !job.dayOfWeek.includes(<DayOfWeek>today)) continue;
       if (currentTime == job.startTime) {
-        if (await this.sensorService.isMinDistanceReached()) return;
+        // if (await this.sensorService.isMinDistanceReached()) return;
         await this.plugService.updateShutdownFailSafe(true, job.endTime, "0");
         await this.plugService.updatePlugStatus({ POWER1: "ON" });
         this.logger.debug(`Plug turned on for job ${job._id}`);
       } else if (currentTime == job.endTime) {
-        const failSafePromise = new Promise<void>((resolve) => {
-          setTimeout(async () => {
-            await this.plugService.updateShutdownFailSafe();
-            resolve();
-          }, 10000); // Delay of 10 seconds (10000 milliseconds)
-        });
+        // const failSafePromise = new Promise<void>((resolve) => {
+        //   setTimeout(async () => {
+        //     const plugState = await this.plugService.getPlugState();
+        //     if (plugState.POWER1 == "OFF") {
+        //       await this.plugService.updateShutdownFailSafe();
+        //       resolve();
+        //     }
+        //   }, 10000); // Delay of 10 seconds (10000 milliseconds)
+        // });
 
         await Promise.all([
-          failSafePromise,
-          this.plugService.updatePlugStatus({ POWER1: "OFF" })
+          // failSafePromise,
+          this.plugService.updatePlugStatus({ POWER1: "OFF" }),
         ]);
         this.logger.debug(`Plug turned off for job ${job._id}`);
       }
@@ -159,7 +171,7 @@ export class SchedulerService {
     const sensorData = new this.sensorDataModel({
       datetime: data.datetime,
       distance: data.distance,
-      status: data.status
+      status: data.status,
     });
     await sensorData.save({ validateBeforeSave: true });
     this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
