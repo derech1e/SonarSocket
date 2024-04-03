@@ -19,7 +19,14 @@ export class SensorA02YYUWService implements ISensorService {
   }
 
   getAllMeasurements(): Promise<SensorData[]> {
-    return Promise.resolve([]);
+    return this.sensorDataModel
+      .find({
+        datetime: {
+          $gte: new Date(new Date().getTime() - 1000 * 60 * 60), // Only return the entries of the last 1000h
+        },
+      })
+      .select({ datetime: 1, distance: 1, _id: 0 })
+      .exec();
   }
 
   isMinDistanceReached(): Promise<boolean> {
