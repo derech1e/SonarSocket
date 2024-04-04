@@ -22,7 +22,7 @@ export class SensorA02YYUWService implements ISensorService {
     return this.sensorDataModel
       .find({
         datetime: {
-          $gte: new Date(new Date().getTime() - 1000 * 60 * 60), // Only return the entries of the last 1000h
+          $gte: new Date(Date.now() - 1000 * 60 * 60 * 1000), // Only return the entries of the last 1000h
         },
       })
       .select({ datetime: 1, distance: 1, _id: 0 })
