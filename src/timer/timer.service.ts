@@ -4,9 +4,10 @@ import { interval, Observable, Subscription } from "rxjs";
 
 @Injectable()
 export class TimerService {
+  public remainingTime: number;
+  public requestedDuration: number; // The requested time is the total duration requested by the client
   private timer$: Observable<number>;
   private subscription: Subscription;
-  private remainingTime: number;
 
   constructor() {
     this.timer$ = interval(1000);
@@ -16,6 +17,7 @@ export class TimerService {
   startTimer(createTimerDto: CreateTimerDto): Observable<number> {
     if (!this.subscription || this.subscription.closed || !this.remainingTime) {
       this.remainingTime = createTimerDto.duration;
+      this.requestedDuration = createTimerDto.duration;
       return new Observable<number>((observer) => {
         this.subscription = this.timer$.subscribe(() => {
           this.remainingTime -= 1;
