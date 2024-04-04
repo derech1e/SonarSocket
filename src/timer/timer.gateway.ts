@@ -32,6 +32,13 @@ export class TimerGateway {
   @SubscribeMessage("startTimer")
   async handleStartTimer(client: any, payload: CreateTimerDto) {
     await this.plugService.updatePlugStatus({ POWER1: "ON" });
+    await this.plugService.updateShutdownFailSafe(
+      true,
+      new Date(Date.now() + (payload.duration + 60) * 1000)
+        .toLocaleTimeString()
+        .slice(0, 5),
+      "0",
+    );
     const timer$ = this.timerService.startTimer(payload);
 
     if (!timer$) {
@@ -41,13 +48,18 @@ export class TimerGateway {
 
     timer$.subscribe({
       next: (time) => {
-        this.server.emit(this.ROOM_NAME, time);
+        this.server.emit(
+          this.ROOM_NAME,
+          time,
+          this.timerService.requestedDuration,
+        );
       },
       complete: async () => {
         this.server.emit(this.ROOM_NAME, "Timer done.");
         this.timerService.stopTimer();
         // timer$ = null;
         await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+        await this.plugService.updateShutdownFailSafe(false);
       },
     });
   }
@@ -56,11 +68,19 @@ export class TimerGateway {
   async handlePauseTimer() {
     this.timerService.pauseTimer();
     await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+    await this.plugService.updateShutdownFailSafe(false);
   }
 
   @SubscribeMessage("resumeTimer")
   async handleResumeTimer() {
     await this.plugService.updatePlugStatus({ POWER1: "ON" });
+    await this.plugService.updateShutdownFailSafe(
+      true,
+      new Date(Date.now() + (this.timerService.remainingTime + 60) * 1000)
+        .toLocaleTimeString()
+        .slice(0, 5),
+      "0",
+    );
     const timer$ = this.timerService.resumeTimer();
     if (!timer$) {
       this.server.emit(
@@ -85,5 +105,6 @@ export class TimerGateway {
     this.timerService.stopTimer();
     this.server.emit(this.ROOM_NAME, "Timer stopped.");
     await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+    await this.plugService.updateShutdownFailSafe(false);
   }
 }
