@@ -49,15 +49,15 @@ export class PlugService {
         enabled ? "1" : "0"
       },"Mode":0,"Time":"${endTime}","Window":0,"Days":"11TW11S","Repeat":0,"Output":1,"Action":${action}}`,
     );
-    // const { data } = await firstValueFrom(
-    return this.httpService.get(this.URL + urlEncoded).pipe(
-      catchError((error) => {
-        this.logger.error(error.response.data);
-        throw "An error happened!";
-      }),
+    const { data } = await firstValueFrom(
+      this.httpService.get(this.URL + urlEncoded).pipe(
+        catchError((error) => {
+          this.logger.error(error.response.data);
+          throw "An error happened!";
+        }),
+      ),
     );
-    // );
-    // return data;
+    return data;
   }
 
   async getPlugState(): Promise<PlugState> {
