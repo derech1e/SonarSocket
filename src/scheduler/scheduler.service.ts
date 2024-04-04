@@ -159,6 +159,7 @@ export class SchedulerService {
         await Promise.all([
           // failSafePromise,
           this.plugService.updatePlugStatus({ POWER1: "OFF" }),
+          this.plugService.updateShutdownFailSafe(false),
         ]);
         this.logger.debug(`Plug turned off for job ${job._id}`);
       }
