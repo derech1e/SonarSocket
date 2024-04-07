@@ -11,7 +11,7 @@ import {
 @Injectable()
 export class PlugService {
   private readonly logger = new Logger(PlugService.name);
-  private readonly URL = `http://192.168.200.196/cm?cmnd=`;
+  private readonly URL = `http://192.168.200.198/cm?cmnd=`;
 
   constructor(
     private readonly httpService: HttpService,
@@ -61,7 +61,7 @@ export class PlugService {
   }
 
   async getPlugState(): Promise<PlugState> {
-    const url = `http://192.168.200.196/cm?cmnd=Power`;
+    const url = `http://192.168.200.198/cm?cmnd=Power`;
     const { data } = await firstValueFrom(
       this.httpService.get<PlugState>(url).pipe(
         catchError((error) => {
