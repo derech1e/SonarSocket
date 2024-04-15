@@ -8,12 +8,14 @@ import {
 import { SensorController } from "./sensor.controller";
 import { SensorA02YYUWService } from "./impl/sensor.A02YYUW.service";
 import { SENSOR_SERVICE } from "./interface/ISensorService";
+import { LogsModule } from "../logs/logs.module";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: SensorData.name, schema: SensorDataSchema },
     ]),
+    LogsModule,
   ],
   controllers: [SensorController],
   providers: [

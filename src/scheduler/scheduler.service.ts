@@ -5,7 +5,6 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
 import { PlugService } from "../plug/plug.service";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -17,6 +16,8 @@ import {
   ISensorService,
   SENSOR_SERVICE,
 } from "../sensor/interface/ISensorService";
+import { LogsService } from "../logs/logs.service";
+import { Action, LogTyp, Module } from "../logs/entities/log.entity";
 
 @Injectable()
 export class SchedulerService {
@@ -26,6 +27,7 @@ export class SchedulerService {
     private readonly plugService: PlugService,
     @Inject(SENSOR_SERVICE)
     private readonly sensorService: ISensorService,
+    private readonly _logsService: LogsService,
     @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>,
     @InjectModel(Scheduler.name) private schedulerDataModel: Model<Scheduler>,
   ) {}
@@ -41,32 +43,52 @@ export class SchedulerService {
   async updateSchedulerJob(_id: string, scheduler: UpdateSchedulerDto) {
     const overlapping = await this.isOverlappingJob(scheduler);
     if (overlapping.isOverlapping && overlapping._id != _id) {
+      await this._logsService.log(
+        Module.SCHEDULER,
+        Action.UPDATE_SCHEDULE,
+        LogTyp.ERROR,
+        "A job already exists at the given time",
+      );
       throw new HttpException(
         "A job already exists at the given time",
         HttpStatus.CONFLICT,
       );
     }
+    await this._logsService.log(
+      Module.SCHEDULER,
+      Action.UPDATE_SCHEDULE,
+      LogTyp.INFO,
+    );
     return this.schedulerDataModel
       .findOneAndUpdate({ _id }, scheduler, { new: true })
       .exec();
   }
 
   async updateSchedulerJobActive(_id: string, isActive: boolean) {
+    await this._logsService.log(Module.SCHEDULER, Action.TOGGLE_SCHEDULE);
     return this.schedulerDataModel
       .findOneAndUpdate({ _id }, { isActive }, { new: true })
       .exec();
   }
 
   async deleteSchedulerJob(_id: string) {
+    await this._logsService.log(Module.SCHEDULER, Action.DELETE_SCHEDULE);
     return this.schedulerDataModel.findOneAndDelete({ _id }).exec();
   }
 
   async createSchedulerJob(createSchedulerJobDto: CreateSchedulerDto) {
     if (!createSchedulerJobDto) {
+      await this._logsService.log(
+        Module.SCHEDULER,
+        Action.CREATE_NEW_SCHEDULE,
+        LogTyp.ERROR,
+        "Invalid input",
+      );
       throw new HttpException("Invalid input", HttpStatus.BAD_REQUEST);
     }
 
     const schedulerJob = new this.schedulerDataModel(createSchedulerJobDto);
+    await this._logsService.log(Module.SCHEDULER, Action.CREATE_NEW_SCHEDULE);
     return schedulerJob.save({ validateBeforeSave: true });
   }
 
@@ -121,7 +143,7 @@ export class SchedulerService {
     return { _id: lastJobId, isOverlapping: overLapping };
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
   async handlePlugState() {
     const jobs = await this.getSchedulerJobs();
     const now = new Date();
@@ -136,6 +158,7 @@ export class SchedulerService {
     //   await this.plugService.updatePlugStatus({ POWER1: "OFF" });
     // }
 
+    await this._logsService.log(Module.SCHEDULER, Action.CHECKING_SCHEDULE);
     this.logger.debug("Checking jobs...");
 
     for (const job of jobs) {
@@ -166,7 +189,7 @@ export class SchedulerService {
     }
   }
 
-  @Cron("*/5 6-21 * * *")
+  // @Cron("*/5 * * * *")
   async logSensorData() {
     const data = await this.sensorService.measureDistance(100);
     const sensorData = new this.sensorDataModel({

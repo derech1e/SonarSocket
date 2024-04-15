@@ -3,13 +3,7 @@ import { LogsService } from "./logs.service";
 
 @Controller("logs")
 export class LogsController {
-  constructor(private readonly logsService: LogsService) {
-  }
-
-  @Post()
-  async createLog(@Body() body: { action: string }) {
-    return await this.logsService.createLog(body.action);
-  }
+  constructor(private readonly logsService: LogsService) {}
 
   @Get()
   async getLogs() {

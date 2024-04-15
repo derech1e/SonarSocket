@@ -8,11 +8,13 @@ import {
   SensorDataSchema,
 } from "../scheduler/entities/scheduler-sensor.entity";
 import { SensorModule } from "../sensor/sensor.module";
+import { LogsModule } from "../logs/logs.module";
 
 @Module({
   imports: [
     HttpModule,
     SensorModule,
+    LogsModule,
     MongooseModule.forFeature([
       { name: SensorData.name, schema: SensorDataSchema },
     ]),

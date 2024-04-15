@@ -7,8 +7,8 @@ export type SensorDataDocument = HydratedDocument<SensorData>;
   timeseries: {
     timeField: "datetime",
     granularity: "minutes",
-    metaField: "distance"
-  }
+    metaField: "distance",
+  },
 })
 export class SensorData {
   @Prop({ required: true, type: Date })

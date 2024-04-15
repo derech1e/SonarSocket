@@ -10,6 +10,7 @@ import {
 import { HttpModule } from "@nestjs/axios";
 import { Scheduler, SchedulerSchema } from "./entities/scheduler.entity";
 import { SensorModule } from "../sensor/sensor.module";
+import { LogsModule } from "../logs/logs.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SensorModule } from "../sensor/sensor.module";
     ]),
     HttpModule,
     SensorModule,
+    LogsModule,
   ],
   controllers: [SchedulerController],
   providers: [SchedulerService, PlugService],

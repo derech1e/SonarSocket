@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { CreateTimerDto } from "./dto/create-timer.dto";
 import { interval, Observable, Subscription } from "rxjs";
+import { LogsService } from "../logs/logs.service";
+import { Action, Module } from "../logs/entities/log.entity";
 
 @Injectable()
 export class TimerService {
@@ -9,7 +11,7 @@ export class TimerService {
   private timer$: Observable<number>;
   private subscription: Subscription;
 
-  constructor() {
+  constructor(private readonly _logsService: LogsService) {
     this.timer$ = interval(1000);
     this.subscription = new Subscription();
   }
@@ -18,6 +20,7 @@ export class TimerService {
     if (!this.subscription || this.subscription.closed || !this.remainingTime) {
       this.remainingTime = createTimerDto.duration;
       this.requestedDuration = createTimerDto.duration;
+      this._logsService.log(Module.TIMER, Action.START_TIMER);
       return new Observable<number>((observer) => {
         this.subscription = this.timer$.subscribe(() => {
           this.remainingTime -= 1;
@@ -33,6 +36,7 @@ export class TimerService {
   }
 
   pauseTimer() {
+    this._logsService.log(Module.TIMER, Action.PAUSE_TIMER);
     this.subscription.unsubscribe();
   }
 
@@ -41,6 +45,7 @@ export class TimerService {
       (!this.subscription || this.subscription.closed) &&
       this.remainingTime
     ) {
+      this._logsService.log(Module.TIMER, Action.RESUME_TIMER);
       return this.startTimer({ duration: this.remainingTime });
     } else {
       return null;
@@ -50,5 +55,6 @@ export class TimerService {
   stopTimer() {
     this.subscription.unsubscribe();
     this.remainingTime = null;
+    this._logsService.log(Module.TIMER, Action.STOP_TIMER);
   }
 }

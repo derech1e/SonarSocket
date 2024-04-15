@@ -4,6 +4,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SensorData } from "../../scheduler/entities/scheduler-sensor.entity";
 import { Model } from "mongoose";
 import { ISensorData } from "../interface/ISensorData";
+import { Action, Module } from "../../logs/entities/log.entity";
+import { LogsService } from "../../logs/logs.service";
 import { SerialPort } from "serialport";
 
 @Injectable()
@@ -13,6 +15,7 @@ export class SensorA02YYUWService implements ISensorService {
 
   constructor(
     @InjectModel(SensorData.name) private sensorDataModel: Model<SensorData>,
+    private readonly _logsService: LogsService,
   ) {
     const serialPort = new SerialPort({ path: "/dev/serial0", baudRate: 9600 });
     serialPort.on("data", this.parseSerialData);
@@ -33,14 +36,13 @@ export class SensorA02YYUWService implements ISensorService {
     return Promise.resolve(false);
   }
 
-  measureDistance(): Promise<ISensorData> {
-    return new Promise((resolve) => {
-      resolve({
-        status: "SUCCESS",
-        datetime: this.LAST_DATE,
-        distance: this.LAST_MEASUREMENT,
-      });
-    });
+  async measureDistance(): Promise<ISensorData> {
+    await this._logsService.log(Module.SENSOR, Action.LISTEN_SENSOR);
+    return {
+      status: "SUCCESS",
+      datetime: this.LAST_DATE,
+      distance: this.LAST_MEASUREMENT,
+    };
   }
 
   // https://wiki.dfrobot.com/_A02YYUW_Waterproof_Ultrasonic_Sensor_SKU_SEN0311

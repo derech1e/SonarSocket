@@ -5,8 +5,7 @@ import { PlugState } from "./interface/PlugState";
 
 @Controller("plug")
 export class PlugController {
-  constructor(private readonly plugService: PlugService) {
-  }
+  constructor(private readonly plugService: PlugService) {}
 
   @Get("/status")
   async getPlugStatus(): Promise<PlugState> {
