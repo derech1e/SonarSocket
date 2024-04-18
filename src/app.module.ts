@@ -17,7 +17,6 @@ import { LogsModule } from "./logs/logs.module";
     }),
     PlugModule,
     SchedulerModule,
-    LogsModule,
     TimerModule,
     SensorModule,
     LogsModule,
