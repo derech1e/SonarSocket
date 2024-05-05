@@ -18,6 +18,7 @@ import {
 } from "../sensor/interface/ISensorService";
 import { LogsService } from "../logs/logs.service";
 import { Action, LogTyp, Module } from "../logs/entities/log.entity";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class SchedulerService {
@@ -143,7 +144,7 @@ export class SchedulerService {
     return { _id: lastJobId, isOverlapping: overLapping };
   }
 
-  // @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handlePlugState() {
     const jobs = await this.getSchedulerJobs();
     const now = new Date();
@@ -157,9 +158,9 @@ export class SchedulerService {
     // if (await this.sensorService.isMinDistanceReached()) {
     //   await this.plugService.updatePlugStatus({ POWER1: "OFF" });
     // }
-
-    await this._logsService.log(Module.SCHEDULER, Action.CHECKING_SCHEDULE);
-    this.logger.debug("Checking jobs...");
+    //
+    // await this._logsService.log(Module.SCHEDULER, Action.CHECKING_SCHEDULE);
+    // this.logger.debug("Checking jobs...");
 
     for (const job of jobs) {
       if (!job.isActive || !job.dayOfWeek.includes(<DayOfWeek>today)) continue;
@@ -189,7 +190,7 @@ export class SchedulerService {
     }
   }
 
-  // @Cron("*/5 * * * *")
+  @Cron("*/5 * * * *")
   async logSensorData() {
     const data = await this.sensorService.measureDistance(100);
     const sensorData = new this.sensorDataModel({
@@ -198,6 +199,6 @@ export class SchedulerService {
       status: data.status,
     });
     await sensorData.save({ validateBeforeSave: true });
-    this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
+    // this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
   }
 }

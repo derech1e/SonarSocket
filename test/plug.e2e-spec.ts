@@ -13,7 +13,7 @@ describe("Plug", () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule]
+      imports: [AppModule],
     }).compile();
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
@@ -32,7 +32,7 @@ describe("Plug", () => {
     await schedulerModel.create({
       dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
       startTime: "07:15",
-      endTime: "07:30"
+      endTime: "07:30",
     });
   });
 
@@ -62,7 +62,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
         startTime: "07:15",
-        endTime: "07:30"
+        endTime: "07:30",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -73,7 +73,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Monday],
         startTime: "07:15",
-        endTime: "07:30"
+        endTime: "07:30",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -84,7 +84,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Tuesday],
         startTime: "07:15",
-        endTime: "07:30"
+        endTime: "07:30",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -95,7 +95,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Monday],
         startTime: "07:29",
-        endTime: "07:45"
+        endTime: "07:45",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -106,7 +106,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Tuesday],
         startTime: "07:29",
-        endTime: "07:45"
+        endTime: "07:45",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -117,7 +117,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
         startTime: "07:29",
-        endTime: "07:45"
+        endTime: "07:45",
       })
       .expect(HttpStatus.CONFLICT);
   });
@@ -128,7 +128,7 @@ describe("Plug", () => {
       .send({
         dayOfWeek: [DayOfWeek.Monday, DayOfWeek.Tuesday],
         startTime: "07:45",
-        endTime: "07:50"
+        endTime: "07:50",
       })
       .expect(HttpStatus.CREATED)
       .expect((response) => {
@@ -136,7 +136,7 @@ describe("Plug", () => {
         expect(response.body).toHaveProperty("endTime", "07:50");
         expect(response.body).toHaveProperty("dayOfWeek", [
           DayOfWeek.Monday,
-          DayOfWeek.Tuesday
+          DayOfWeek.Tuesday,
         ]);
       });
     /*.expect([

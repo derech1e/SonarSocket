@@ -37,7 +37,6 @@ export class SensorA02YYUWService implements ISensorService {
   }
 
   async measureDistance(): Promise<ISensorData> {
-    await this._logsService.log(Module.SENSOR, Action.LISTEN_SENSOR);
     return {
       status: "SUCCESS",
       datetime: this.LAST_DATE,

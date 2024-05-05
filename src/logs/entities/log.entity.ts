@@ -56,7 +56,7 @@ export class Log {
   @Prop({ required: true, type: String, enum: LogTyp })
   logTyp: LogTyp;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: "" })
   message: string;
 }
 
