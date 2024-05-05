@@ -9,6 +9,8 @@ import { Scheduler } from "./entities/scheduler.entity";
 import { HttpModule } from "@nestjs/axios";
 import { SensorJSNSR04TService } from "../sensor/impl/sensor.JSN-SR04T.service";
 import { SENSOR_SERVICE } from "../sensor/interface/ISensorService";
+import { Log } from "../logs/entities/log.entity";
+import { LogsService } from "../logs/logs.service";
 
 describe("SchedulerService", () => {
   let service: SchedulerService;
@@ -19,6 +21,7 @@ describe("SchedulerService", () => {
       controllers: [SchedulerController],
       providers: [
         SchedulerService,
+        LogsService,
         PlugService,
         {
           provide: SENSOR_SERVICE,
@@ -31,6 +34,10 @@ describe("SchedulerService", () => {
         {
           provide: getModelToken(Scheduler.name),
           useClass: Scheduler,
+        },
+        {
+          provide: getModelToken(Log.name),
+          useClass: Log,
         },
       ],
     }).compile();
