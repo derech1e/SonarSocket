@@ -31,14 +31,6 @@ export class TimerGateway {
 
   @SubscribeMessage("startTimer")
   async handleStartTimer(client: any, payload: CreateTimerDto) {
-    await this.plugService.updatePlugStatus({ POWER1: "ON" });
-    await this.plugService.updateShutdownFailSafe(
-      true,
-      new Date(Date.now() + (payload.duration + 60) * 1000)
-        .toLocaleTimeString()
-        .slice(0, 5),
-      "0",
-    );
     const timer$ = this.timerService.startTimer(payload);
 
     if (!timer$) {
@@ -62,6 +54,15 @@ export class TimerGateway {
         await this.plugService.updateShutdownFailSafe(false);
       },
     });
+
+    await this.plugService.updateShutdownFailSafe(
+      true,
+      new Date(Date.now() + (payload.duration + 60) * 1000)
+        .toLocaleTimeString()
+        .slice(0, 5),
+      "0",
+    );
+    await this.plugService.updatePlugStatus({ POWER1: "ON" });
   }
 
   @SubscribeMessage("pauseTimer")
@@ -73,7 +74,6 @@ export class TimerGateway {
 
   @SubscribeMessage("resumeTimer")
   async handleResumeTimer() {
-    await this.plugService.updatePlugStatus({ POWER1: "ON" });
     await this.plugService.updateShutdownFailSafe(
       true,
       new Date(Date.now() + (this.timerService.remainingTime + 60) * 1000)
@@ -81,6 +81,7 @@ export class TimerGateway {
         .slice(0, 5),
       "0",
     );
+    await this.plugService.updatePlugStatus({ POWER1: "ON" });
     const timer$ = this.timerService.resumeTimer();
     if (!timer$) {
       this.server.emit(
@@ -96,6 +97,7 @@ export class TimerGateway {
       complete: async () => {
         this.server.emit(this.ROOM_NAME, "done");
         await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+        await this.plugService.updateShutdownFailSafe(false);
       },
     });
   }
