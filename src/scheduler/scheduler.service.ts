@@ -155,17 +155,20 @@ export class SchedulerService {
       minute: "2-digit",
     });
 
-    // if (await this.sensorService.isMinDistanceReached()) {
-    //   await this.plugService.updatePlugStatus({ POWER1: "OFF" });
-    // }
-    //
+    if (await this.sensorService.isMinDistanceReached()) {
+      await this.plugService.updatePlugStatus({ POWER1: "OFF" });
+      await this.plugService.updateShutdownFailSafe(false);
+      this.logger.debug("Min distance Reached: Shutting down");
+      return;
+    }
+
     // await this._logsService.log(Module.SCHEDULER, Action.CHECKING_SCHEDULE);
     // this.logger.debug("Checking jobs...");
 
     for (const job of jobs) {
       if (!job.isActive || !job.dayOfWeek.includes(<DayOfWeek>today)) continue;
       if (currentTime == job.startTime) {
-        // if (await this.sensorService.isMinDistanceReached()) return;
+        if (await this.sensorService.isMinDistanceReached()) return;
         await this.plugService.updateShutdownFailSafe(true, job.endTime, "0");
         await this.plugService.updatePlugStatus({ POWER1: "ON" });
         this.logger.debug(`Plug turned on for job ${job._id}`);
