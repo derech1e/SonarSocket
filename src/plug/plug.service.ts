@@ -13,7 +13,7 @@ import { Action, LogTyp, Module } from "../logs/entities/log.entity";
 @Injectable()
 export class PlugService {
   private readonly logger = new Logger(PlugService.name);
-  private readonly URL = `http://192.168.200.198/cm?cmnd=`;
+  private readonly URL = `http://192.168.200.100/cm?cmnd=`;
 
   constructor(
     private readonly httpService: HttpService,
@@ -24,13 +24,13 @@ export class PlugService {
   ) {}
 
   async updatePlugStatus(updatePlugDto: UpdatePlugDto): Promise<PlugState> {
-    // if (updatePlugDto.POWER1) {
-    // const isMinDistance = await this.sensorService.isMinDistanceReached();
-    // console.log("isMinDistance", isMinDistance);
-    // if (isMinDistance) {
-    //   throw "Min distance reached!";
-    // }
-    // }
+    if (updatePlugDto.POWER1) {
+      const isMinDistance = await this.sensorService.isMinDistanceReached();
+      console.log("isMinDistance", isMinDistance);
+      if (isMinDistance) {
+        throw "Min distance reached!";
+      }
+    }
 
     const { data } = await firstValueFrom(
       this.httpService.get(this.URL + `Power%20${updatePlugDto.POWER1}`).pipe(
@@ -89,7 +89,7 @@ export class PlugService {
   }
 
   async getPlugState(): Promise<PlugState> {
-    const url = `http://192.168.200.198/cm?cmnd=Power`;
+    const url = `http://192.168.200.100/cm?cmnd=Power`;
     const { data } = await firstValueFrom(
       this.httpService.get<PlugState>(url).pipe(
         catchError((error) => {

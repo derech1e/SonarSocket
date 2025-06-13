@@ -4,7 +4,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { SensorData } from "../../scheduler/entities/scheduler-sensor.entity";
 import { Model } from "mongoose";
 import { ISensorData } from "../interface/ISensorData";
-import { Action, Module } from "../../logs/entities/log.entity";
 import { LogsService } from "../../logs/logs.service";
 import { SerialPort } from "serialport";
 
@@ -32,8 +31,8 @@ export class SensorA02YYUWService implements ISensorService {
       .exec();
   }
 
-  isMinDistanceReached(): Promise<boolean> {
-    return Promise.resolve(false);
+  async isMinDistanceReached(): Promise<boolean> {
+    return (await this.measureDistance()).distance > 243.67 - 13;
   }
 
   async measureDistance(): Promise<ISensorData> {

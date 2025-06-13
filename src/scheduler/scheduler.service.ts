@@ -144,6 +144,17 @@ export class SchedulerService {
     return { _id: lastJobId, isOverlapping: overLapping };
   }
 
+  @Cron("*/5 * * * *")
+  async logSensorData() {
+    const data = await this.sensorService.measureDistance(100);
+    const sensorData = new this.sensorDataModel({
+      datetime: data.datetime,
+      distance: data.distance,
+      status: data.status,
+    });
+    await sensorData.save({ validateBeforeSave: true });
+  }
+
   @Cron(CronExpression.EVERY_MINUTE)
   async handlePlugState() {
     const jobs = await this.getSchedulerJobs();
@@ -191,17 +202,5 @@ export class SchedulerService {
         this.logger.debug(`Plug turned off for job ${job._id}`);
       }
     }
-  }
-
-  @Cron("*/5 * * * *")
-  async logSensorData() {
-    const data = await this.sensorService.measureDistance(100);
-    const sensorData = new this.sensorDataModel({
-      datetime: data.datetime,
-      distance: data.distance,
-      status: data.status,
-    });
-    await sensorData.save({ validateBeforeSave: true });
-    // this.logger.debug(`Logged sensor data: ${JSON.stringify(data)}`);
   }
 }
