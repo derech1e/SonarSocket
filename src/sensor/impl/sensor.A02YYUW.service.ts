@@ -32,7 +32,7 @@ export class SensorA02YYUWService implements ISensorService {
   }
 
   async isMinDistanceReached(): Promise<boolean> {
-    return (await this.measureDistance()).distance > 243.67 - 13;
+    return (await this.measureDistance()).distance / 10 > 243.67 - 13;
   }
 
   async measureDistance(): Promise<ISensorData> {
@@ -54,7 +54,10 @@ export class SensorA02YYUWService implements ISensorService {
     // Verify checksum (always ends with: '& 0x00FF')
     const calculatedSUM = (HEADER + DATA_HIGH + DATA_LOW) & 0x00ff;
     if (SUM !== calculatedSUM) {
-      console.error("Checksum mismatch! Data may be corrupted.");
+      console.error(
+        "Checksum mismatch! Data may be corrupted.\n Received:" +
+          (this.LAST_MEASUREMENT = DATA_HIGH * 256 + DATA_LOW),
+      );
       return null;
     }
 
